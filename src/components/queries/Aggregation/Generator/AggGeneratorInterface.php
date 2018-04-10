@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\queries\Aggregation\Generator;
+namespace mirocow\elasticsearch\components\queries\Aggregation\Generator;
 
 interface AggGeneratorInterface
 {

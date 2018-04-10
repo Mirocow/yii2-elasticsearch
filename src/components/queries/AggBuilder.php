@@ -1,13 +1,13 @@
 <?php
-namespace common\modules\elasticsearch\components\queries;
+namespace mirocow\elasticsearch\components\queries;
 
-use common\modules\elasticsearch\components\queries\helpers\AggQueryHelper;
-use common\modules\elasticsearch\components\queries\Aggregation\Aggregation;
-use common\modules\elasticsearch\components\queries\Aggregation\AggregationInterface;
-use common\modules\elasticsearch\components\queries\Aggregation\AggregationMulti;
-use common\modules\elasticsearch\components\queries\Aggregation\AggResult;
-use common\modules\elasticsearch\components\queries\Aggregation\Generator\AggGeneratorInterface;
-use common\modules\elasticsearch\components\queries\Aggregation\Generator\DefaultAggGenerator;
+use mirocow\elasticsearch\components\queries\helpers\AggQueryHelper;
+use mirocow\elasticsearch\components\queries\Aggregation\Aggregation;
+use mirocow\elasticsearch\components\queries\Aggregation\AggregationInterface;
+use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
+use mirocow\elasticsearch\components\queries\Aggregation\AggResult;
+use mirocow\elasticsearch\components\queries\Aggregation\Generator\AggGeneratorInterface;
+use mirocow\elasticsearch\components\queries\Aggregation\Generator\DefaultAggGenerator;
 
 class AggBuilder
 {

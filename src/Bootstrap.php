@@ -1,10 +1,10 @@
 <?php
-namespace common\modules\elasticsearch;
+namespace mirocow\elasticsearch;
 
-use common\modules\elasticsearch\contracts\ProgressLogger;
-use common\modules\elasticsearch\contracts\Indexer;
-use common\modules\elasticsearch\components\factories\IndexerFactory;
-use common\modules\elasticsearch\components\loggers\ConsoleProgressLogger;
+use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\components\factories\IndexerFactory;
+use mirocow\elasticsearch\components\loggers\ConsoleProgressLogger;
 use Yii;
 use yii\base\BootstrapInterface;
 

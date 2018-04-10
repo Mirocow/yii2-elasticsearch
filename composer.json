@@ -14,7 +14,7 @@
   },
   "autoload": {
     "psr-4": {
-      "mirocow\\elasticsearch\\": ""
+      "mirocow\\elasticsearch\\": "src"
     }
   }
 }

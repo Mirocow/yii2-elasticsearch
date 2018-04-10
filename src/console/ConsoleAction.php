@@ -1,7 +1,7 @@
 <?php
-namespace common\modules\elasticsearch\console;
+namespace mirocow\elasticsearch\console;
 
-use common\modules\elasticsearch\Module;
+use mirocow\elasticsearch\Module;
 use yii\base\Action;
 use yii\console\Controller;
 use yii\helpers\Console;

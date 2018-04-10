@@ -1,7 +1,7 @@
 <?php
-namespace common\modules\elasticsearch\components\loggers;
+namespace mirocow\elasticsearch\components\loggers;
 
-use common\modules\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\ProgressLogger;
 use yii\helpers\Console;
 
 final class ConsoleProgressLogger implements ProgressLogger

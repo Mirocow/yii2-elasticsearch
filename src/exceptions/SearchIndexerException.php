@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\exceptions;
+namespace mirocow\elasticsearch\exceptions;
 
 use Exception;
 

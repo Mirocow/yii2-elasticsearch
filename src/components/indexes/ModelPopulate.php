@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\indexes;
+namespace mirocow\elasticsearch\components\indexes;
 
 use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
@@ -104,12 +104,17 @@ class ModelPopulate
             if ($this->indexBy === null) {
                 foreach ($rows as $row) {
                     $model = $class::instantiate($row);
+
                     /** @var ActiveRecord $modelClass */
                     $modelClass = get_class($model);
                     if(isset($row['_source'])) {
                         $modelClass::populateRecord($model, $row['_source']);
                     } else {
                         $model = $modelClass::findOne($row['_id']);
+
+                        if(!$model){
+                            continue;
+                        }
                     }
                     if($this->refresh){
                         $model->refresh();
@@ -119,12 +124,17 @@ class ModelPopulate
             } else {
                 foreach ($rows as $row) {
                     $model = $class::instantiate($row);
+
                     /** @var ActiveRecord $modelClass */
                     $modelClass = get_class($model);
                     if(isset($row['_source'])) {
                         $modelClass::populateRecord($model, $row['_source']);
                     } else {
                         $model = $modelClass::findOne($row['_id']);
+
+                        if(!$model){
+                            continue;
+                        }
                     }
                     if (is_string($this->indexBy)) {
                         $key = $model->{$this->indexBy};

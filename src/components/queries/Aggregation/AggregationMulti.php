@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\queries\Aggregation;
+namespace mirocow\elasticsearch\components\queries\Aggregation;
 
 class AggregationMulti implements AggregationInterface
 {

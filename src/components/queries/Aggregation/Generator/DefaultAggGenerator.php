@@ -1,11 +1,11 @@
 <?php
-namespace common\modules\elasticsearch\components\queries\Aggregation\Generator;
+namespace mirocow\elasticsearch\components\queries\Aggregation\Generator;
 
-use common\modules\elasticsearch\components\queries\Aggregation\AggResult;
+use mirocow\elasticsearch\components\queries\Aggregation\AggResult;
 
 /**
  * Class DefaultAggGenerator
- * @package common\modules\elasticsearch\components\queries\helpers\Aggregation\Generator
+ * @package mirocow\elasticsearch\components\queries\helpers\Aggregation\Generator
  */
 class DefaultAggGenerator implements AggGeneratorInterface
 {

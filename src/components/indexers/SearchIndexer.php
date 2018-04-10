@@ -1,10 +1,10 @@
 <?php
-namespace common\modules\elasticsearch\components\indexers;
+namespace mirocow\elasticsearch\components\indexers;
 
-use common\modules\elasticsearch\contracts\ProgressLogger;
-use common\modules\elasticsearch\contracts\Index;
-use common\modules\elasticsearch\contracts\Indexer;
-use common\modules\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\Index;
+use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 final class SearchIndexer implements Indexer
 {
@@ -26,10 +26,21 @@ final class SearchIndexer implements Indexer
     /** @inheritdoc */
     public function registerIndex(Index $index)
     {
-        if (isset($this->indexes[$index->name()])) {
-            throw new SearchIndexerException('Index ' . $index->name() . ' already registered in search indexer');
+        if (!isset($this->indexes[$index->name()])) {
+            $this->indexes[$index->name()] = $index;
         }
-        $this->indexes[$index->name()] = $index;
+
+    }
+
+    public function getIndex(string $indexName)
+    {
+        foreach ($this->indexes as $index) {
+            if ($indexName instanceof $index) {
+                $this->progressLogger->logMessage('Load index: ' . $index->name());
+                return $index;
+            }
+        }
+        throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
     }
 
     /** @inheritdoc */
@@ -87,7 +98,7 @@ final class SearchIndexer implements Indexer
             throw new SearchIndexerException('Index ' . $indexName . ' is not initialized');
         }
 
-        $this->progressLogger->logMessage('Indexing documents for index: ' . $index::name());
+        $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name());
 
         $totalSteps = $index->documentCount();
         $step       = 1;

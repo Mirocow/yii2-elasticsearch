@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\queries\helpers;
+namespace mirocow\elasticsearch\components\queries\helpers;
 
 class QueryHelper
 {

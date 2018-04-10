@@ -1,12 +1,12 @@
 <?php
-namespace common\modules\elasticsearch\controllers\index;
+namespace mirocow\elasticsearch\controllers\index;
 
-use common\modules\elasticsearch\contracts\ProgressLogger;
-use common\modules\elasticsearch\controllers\index\actions\ActionCreate;
-use common\modules\elasticsearch\controllers\index\actions\ActionDestroy;
-use common\modules\elasticsearch\controllers\index\actions\ActionPopulate;
-use common\modules\elasticsearch\controllers\index\actions\ActionRebuild;
-use common\modules\elasticsearch\controllers\index\actions\ActionUpgrade;
+use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\controllers\index\actions\ActionCreate;
+use mirocow\elasticsearch\controllers\index\actions\ActionDestroy;
+use mirocow\elasticsearch\controllers\index\actions\ActionPopulate;
+use mirocow\elasticsearch\controllers\index\actions\ActionRebuild;
+use mirocow\elasticsearch\controllers\index\actions\ActionUpgrade;
 use yii\console\Controller;
 
 class IndexController extends Controller

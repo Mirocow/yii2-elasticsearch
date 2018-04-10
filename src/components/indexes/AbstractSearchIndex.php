@@ -1,9 +1,9 @@
 <?php
-namespace common\modules\elasticsearch\components\indexes;
+namespace mirocow\elasticsearch\components\indexes;
 
-use common\modules\elasticsearch\components\queries\helpers\QueryHelper;
-use common\modules\elasticsearch\contracts\Index;
-use common\modules\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
+use mirocow\elasticsearch\contracts\Index;
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
@@ -43,6 +43,16 @@ abstract class AbstractSearchIndex implements Index
     private $aggs = [];
 
     /**
+     * @var array
+     */
+    private $highlight = [];
+
+    /**
+     * @var array
+     */
+    private $_source = [];
+
+    /**
      * @var int
      */
     private $from = 0;
@@ -51,6 +61,11 @@ abstract class AbstractSearchIndex implements Index
      * @var int
      */
     private $size = 10;
+
+    /**
+     * @var array
+     */
+    private $sort = [];
 
     /**
      * @var bool
@@ -84,7 +99,7 @@ abstract class AbstractSearchIndex implements Index
         try {
             $this->client->indices()->get(
               [
-                'index' => static::name()
+                'index' => $this->name()
               ]
             );
         } catch (Missing404Exception $e) {
@@ -97,13 +112,13 @@ abstract class AbstractSearchIndex implements Index
     public function create()
     {
         if ($this->exists()) {
-            throw new SearchIndexerException('Index '.static::name(). ' already exists');
+            throw new SearchIndexerException('Index '.$this->name(). ' already exists');
         }
         try {
-            $settings = static::indexConfig();
+            $settings = $this->indexConfig();
             $this->client->indices()->create($settings);
         } catch (ElasticsearchException $e) {
-            throw new SearchIndexerException('Error creating '.static::name(). ' index', $e->getCode(), $e);
+            throw new SearchIndexerException('Error creating '.$this->name(). ' index', $e->getCode(), $e);
         }
     }
 
@@ -111,21 +126,21 @@ abstract class AbstractSearchIndex implements Index
     public function upgrade()
     {
         if (!$this->exists()) {
-            throw new SearchIndexerException('Index '.static::name(). ' not found');
+            throw new SearchIndexerException('Index '.$this->name(). ' not found');
         }
         try {
-            $settings = static::indexConfig();
-            if(empty($settings['body']['mappings'][static::name()])){
-                throw new SearchIndexerException("Error remaping index ".static::name());
+            $settings = $this->indexConfig();
+            if(empty($settings['body']['mappings'][$this->name()])){
+                throw new SearchIndexerException("Error remaping index ".$this->name());
             }
             $mapping = [
-              'index' => static::name(),
-              'type' => static::type(),
-              'body' => $settings['body']['mappings'][static::name()],
+              'index' => $this->name(),
+              'type' => $this->type(),
+              'body' => $settings['body']['mappings'][$this->name()],
             ];
             $this->client->indices()->putMapping($mapping);
         } catch (ElasticsearchException $e) {
-            throw new SearchIndexerException('Error upgrading '.static::name(). ' index', $e->getCode(), $e);
+            throw new SearchIndexerException('Error upgrading '.$this->name(). ' index', $e->getCode(), $e);
         }
     }
 
@@ -135,11 +150,11 @@ abstract class AbstractSearchIndex implements Index
     public function destroy()
     {
         if (!$this->exists()) {
-            throw new SearchIndexerException('Index '.static::name(). ' does not exist');
+            throw new SearchIndexerException('Index '.$this->name(). ' does not exist');
         }
         $this->client->indices()->delete(
           [
-            'index' => static::name()
+            'index' => $this->name()
           ]
         );
     }
@@ -152,8 +167,8 @@ abstract class AbstractSearchIndex implements Index
     {
         $this->client->delete(
           [
-            'index' => static::name(),
-            'type' => static::type(),
+            'index' => $this->name(),
+            'type' => $this->type(),
             'id' => $documentId
           ]
         );
@@ -171,8 +186,8 @@ abstract class AbstractSearchIndex implements Index
     public function getDocument(int $documentId)
     {
         $query = [
-          'index' => static::name(),
-          'type' => static::type(),
+          'index' => $this->name(),
+          'type' => $this->type(),
           'id' => $documentId
         ];
 
@@ -244,6 +259,28 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
+     * @param array $highlight
+     * @return $this
+     */
+    public function highlight(array $highlight = [])
+    {
+        $this->highlight = $highlight;
+
+        return $this;
+    }
+
+    /**
+     * @param array $source
+     * @return $this
+     */
+    public function source(array $source = [])
+    {
+        $this->_source = $source;
+
+        return $this;
+    }
+
+    /**
      * @param array $filter
      * @return $this
      */
@@ -301,7 +338,9 @@ abstract class AbstractSearchIndex implements Index
             'from', // Limit
             'size', // Limit
             'aggs', // Group
+            'highlight',
             'sort', // Sort
+            '_source',
         ];
 
         $this->body = [];
@@ -312,11 +351,17 @@ abstract class AbstractSearchIndex implements Index
             }
         }
 
-        $this->body['_source'] = $this->withSource;
+        if(!$this->_source) {
+            $this->body['_source'] = $this->withSource;
+        }
+
+        if(!$this->sort) {
+            $this->body['sort'] = QueryHelper::sortBy(['_id' => ['order' => 'asc']]);
+        }
 
         $query = [
-          'index' => static::name(),
-          'type' => static::type(),
+          'index' => $this->name(),
+          'type' => $this->type(),
           'body' => $this->body,
         ];
 

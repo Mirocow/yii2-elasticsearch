@@ -1,11 +1,11 @@
 <?php
-namespace common\modules\elasticsearch\contracts;
+namespace mirocow\elasticsearch\contracts;
 
-use common\modules\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 /**
  * Interface Indexer
- * @package common\modules\elasticsearch\contracts
+ * @package mirocow\elasticsearch\contracts
  */
 interface Indexer
 {
@@ -61,6 +61,13 @@ interface Indexer
      * @return void
      */
     public function createIndex(string $indexName) ;
+
+    /**
+     * Получает объект созданного индекса
+     * @param string $indexName
+     * @return mixed
+     */
+    public function getIndex(string $indexName) ;
 
     /**
      * Удаляет индекс по его названию

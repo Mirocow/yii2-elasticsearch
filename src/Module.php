@@ -1,7 +1,7 @@
 <?php
-namespace common\modules\elasticsearch;
+namespace mirocow\elasticsearch;
 
-use common\modules\elasticsearch\controllers\index\IndexController;
+use mirocow\elasticsearch\controllers\index\IndexController;
 
 class Module extends \yii\base\Module
 {

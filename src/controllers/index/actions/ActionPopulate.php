@@ -1,9 +1,9 @@
 <?php
-namespace common\modules\elasticsearch\controllers\index\actions;
+namespace mirocow\elasticsearch\controllers\index\actions;
 
-use common\modules\elasticsearch\contracts\Indexer;
-use common\modules\elasticsearch\exceptions\SearchIndexerException;
-use common\modules\elasticsearch\console\ConsoleAction;
+use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\console\ConsoleAction;
 use yii\console\Controller;
 
 class ActionPopulate extends ConsoleAction

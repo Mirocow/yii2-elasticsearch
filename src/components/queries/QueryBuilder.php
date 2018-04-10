@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\queries;
+namespace mirocow\elasticsearch\components\queries;
 
 class QueryBuilder
 {

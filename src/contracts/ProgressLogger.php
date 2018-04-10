@@ -1,9 +1,9 @@
 <?php
-namespace common\modules\elasticsearch\contracts;
+namespace mirocow\elasticsearch\contracts;
 
 /**
  * Interface ProgressLogger
- * @package common\modules\elasticsearch\contracts
+ * @package mirocow\elasticsearch\contracts
  */
 interface ProgressLogger
 {

@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\components\queries\Aggregation;
+namespace mirocow\elasticsearch\components\queries\Aggregation;
 
 use Generator;
 use yii\helpers\ArrayHelper;

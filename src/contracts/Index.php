@@ -1,11 +1,11 @@
 <?php
-namespace common\modules\elasticsearch\contracts;
+namespace mirocow\elasticsearch\contracts;
 
-use common\modules\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 /**
  * Interface Index
- * @package common\modules\elasticsearch\contracts
+ * @package mirocow\elasticsearch\contracts
  */
 interface Index
 {
@@ -14,14 +14,14 @@ interface Index
      *
      * @return string
      */
-    public static function name();
+    public function name();
 
     /**
      * Возвращает тип индекса
      *
      * @return string
      */
-    public static function type();
+    public function type();
 
     /**
      * Определяет может ли иднекс индексировать этот документ
@@ -29,7 +29,7 @@ interface Index
      * @param mixed $document
      * @return bool
      */
-    public static function accepts($document);
+    public function accepts($document);
 
     /**
      * Возвращает идентификаторы всех документов, которые должны быть проиндексированы

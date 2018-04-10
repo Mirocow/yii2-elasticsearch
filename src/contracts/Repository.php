@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\contracts;
+namespace mirocow\elasticsearch\contracts;
 
 use common\repositories\exceptions\EntityNotFoundException;
 use yii\db\ActiveRecord;

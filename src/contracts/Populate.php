@@ -1,5 +1,5 @@
 <?php
-namespace common\modules\elasticsearch\contracts;
+namespace mirocow\elasticsearch\contracts;
 
 interface Populate
 {
