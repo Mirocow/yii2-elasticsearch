@@ -1,0 +1,20 @@
+{
+  "name": "mirocow/yii2-elasticsearch",
+  "description": "Yii2 elasticsearch client",
+  "type": "extension",
+  "license": "GPL-v3",
+  "support": {
+    "issues": "https://github.com/mirocow/yii2-elasticsearch",
+    "source": "https://github.com/mirocow/yii2-elasticsearch"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.0",
+    "yiisoft/yii2": ">=2.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "mirocow\\elasticsearch\\": ""
+    }
+  }
+}
