@@ -376,7 +376,7 @@ class QueryHelper
 
     /**
      * Adds order by condition to the query
-     * @param $columns
+     * @param $columns Examples: ['field' => SORT_ASC]; ['field' => ["order" => "asc", "mode" => "avg"]]
      * @return array
      */
     private static function buildOrderBy($columns) :array
