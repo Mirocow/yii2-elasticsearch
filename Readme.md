@@ -6,7 +6,7 @@ $ composer require --prefer-dist elasticsearch/elasticsearch
 
 # Configure
 
-* создать класс реализующий интерфейс common\modules\elasticsearch\contracts\Index
+* создать класс реализующий интерфейс mirocow\elasticsearch\contracts\Index
 * добавить его в настройках модуля индексации в common/config/main.php
 * запустить индексацию
 
@@ -15,8 +15,8 @@ return [
     'modules' => [
 
         // elasticsearch
-        common\modules\elasticsearch\Module::MODULE_NAME => [
-          'class' => common\modules\elasticsearch\Module::class,
+        mirocow\elasticsearch\Module::MODULE_NAME => [
+          'class' => mirocow\elasticsearch\Module::class,
           'indexes' => [
             common\repositories\indexes\ProductsSearchIndex::class
           ]
@@ -24,7 +24,7 @@ return [
 
     ],
     'bootstrap' => [
-        common\modules\elasticsearch\Bootstrap::class
+        mirocow\elasticsearch\Bootstrap::class
     ]
 ];
 ```
