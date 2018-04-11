@@ -48,7 +48,7 @@ $ php yii elasticsearch/index/destroy index_name
 
 Удалить все индексы если они существуют, создать все индексы, проиндексировать документы во всех индексах
 ```bash
-$ php yii elasticsearch/index/rebuild
+$ php yii elasticsearch/index/rebuild index_name
 ```
 
 # Debug
