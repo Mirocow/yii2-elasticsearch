@@ -8,6 +8,7 @@ use mirocow\elasticsearch\components\indexers\SearchIndexer;
 use mirocow\elasticsearch\Module;
 use Yii;
 use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 
 class IndexerFactory
 {
@@ -48,18 +49,16 @@ class IndexerFactory
      */
     public static function createIndex($className , $indexConfig = [])
     {
-        if(!$indexConfig){
-            $module = Yii::$app->getModule(Module::MODULE_NAME);
+        $module = Yii::$app->getModule(Module::MODULE_NAME);
 
-            /** @var array[] $indexes */
-            $indexes = $module->indexes ?? [];
+        /** @var array[] $indexes */
+        $indexes = $module->indexes ?? [];
 
-            foreach ($indexes as $config) {
-                if($className == $config['class']){
-                    unset($config['class']);
-                    $indexConfig = $config;
-                    break;
-                }
+        foreach ($indexes as $config) {
+            if($className == $config['class']){
+                unset($config['class']);
+                $indexConfig = ArrayHelper::merge($indexConfig, $config);
+                break;
             }
         }
 
