@@ -1,23 +1,35 @@
 <?php
 namespace mirocow\elasticsearch\components\queries\Aggregation;
 
+/**
+ * Class AggregationMulti
+ * @package mirocow\elasticsearch\components\queries\Aggregation
+ */
 class AggregationMulti implements AggregationInterface
 {
     /** @var AggregationInterface[] */
-    protected $aggs;
+    protected $aggs = [];
 
     /**
      * AggregationMulti constructor.
      * @param AggregationInterface[] $aggs
      */
-    public function __construct($aggs)
+    public function __construct($aggs = [])
     {
         $this->aggs = $aggs;
     }
 
-    public function setAgg($key, AggregationInterface $agg)
+    public function add($key, AggregationInterface $agg)
     {
         $this->aggs[$key] = $agg;
+    }
+
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->aggs);
     }
 
     /**

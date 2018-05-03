@@ -24,14 +24,14 @@ class DefaultAggGenerator implements AggGeneratorInterface
         }
 
         if (!isset($this->generators['keyedBucketGenerator'])) {
-            $this->generators['keyedBucketGenerator'] = function ($aggName) {
-                return self::keyedBucketGenerator($aggName);
+            $this->generators['keyedBucketGenerator'] = function ($aggName, $valueField = 'doc_count') {
+                return self::keyedBucketGenerator($aggName, $valueField);
             };
         }
 
         if (!isset($this->generators['bucketGenerator'])) {
-            $this->generators['bucketGenerator'] = function ($aggName, $keyAsString = false) {
-                return self::bucketGenerator($aggName, $keyAsString);
+            $this->generators['bucketGenerator'] = function ($aggName) {
+                return self::bucketGenerator($aggName);
             };
         }
     }
@@ -275,48 +275,42 @@ class DefaultAggGenerator implements AggGeneratorInterface
 
     /**
      * @param string $aggName
-     * @param bool $keyAsString
      * @return callable
      */
-    public static function bucketGenerator($aggName, $keyAsString = false)
+    public static function bucketGenerator($aggName)
     {
-        // should be more efficient to have the logic outside of the generator and loop
-        if ($keyAsString) {
-            $generator = function ($results) use ($aggName) {
-                if(isset($results[$aggName]['buckets'])) {
-                    foreach ($results[$aggName]['buckets'] as $bucket) {
-                        yield $bucket['key_as_string'] => new AggResult($bucket['doc_count'], $bucket);
-                    }
-                }
-                if(isset($results[$aggName]['hits'])){
-                    yield $aggName => new AggResult($results[$aggName], $results[$aggName]['hits']['hits']);
-                }
-            };
-        } else {
-            $generator = function ($results) use ($aggName) {
-                if(isset($results[$aggName]['buckets'])) {
-                    foreach ($results[$aggName]['buckets'] as $bucket) {
-                        yield $bucket['key'] => new AggResult($bucket['doc_count'], $bucket);
-                    }
-                }
-                if(isset($results[$aggName]['hits'])){
-                    yield $aggName => new AggResult($results[$aggName], $results[$aggName]['hits']['hits']);
-                }
-            };
-        }
+        return $generator = function ($results) use ($aggName) {
 
-        return $generator;
+            //
+            if (isset($results[$aggName]['buckets'])) {
+                foreach ($results[$aggName]['buckets'] as $bucket) {
+                    yield $bucket['key'] => new AggResult($bucket['doc_count'], $bucket);
+                }
+            }
+
+            //
+            if (isset($results[$aggName]['hits'])) {
+                yield $aggName => new AggResult($results[$aggName], $results[$aggName]['hits']['hits']);
+            }
+
+            //
+            if (isset($results[$aggName]['doc_count'])) {
+                yield $aggName => new AggResult($results, $results[$aggName]);
+            }
+
+        };
     }
 
     /**
      * @param string $aggName
+     * @param string $valueField
      * @return callable
      */
-    public static function keyedBucketGenerator($aggName)
+    public static function keyedBucketGenerator($aggName, $valueField = 'doc_count')
     {
-        $generator = function ($results) use ($aggName) {
+        $generator = function ($results) use ($aggName, $valueField) {
             foreach ($results[$aggName]['buckets'] as $key => $bucket) {
-                yield $key => new AggResult($bucket['doc_count'], $bucket);
+                yield $key => new AggResult($bucket[$valueField], $bucket);
             }
         };
 

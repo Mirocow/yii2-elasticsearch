@@ -71,11 +71,11 @@ class QueryHelper
     /**
      * @param string $field
      * @param string[]|int[] $terms
-     * @return array
+     * @return object
      */
-    public static function terms($field, $terms) :array
+    public static function terms($field, $terms) :\stdClass
     {
-        return [
+        return (object) [
             'terms' => [
                 $field => $terms
             ]
@@ -86,11 +86,11 @@ class QueryHelper
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-term-query.html
      * @param string $field
      * @param string $term
-     * @return array
+     * @return object
      */
-    public static function term($field, $term) :array
+    public static function term($field, $term) :\stdClass
     {
-        return [
+        return (object) [
             'term' => [
                 $field => $term
             ]
@@ -103,9 +103,9 @@ class QueryHelper
      * @param string|int $gte greater than or equal
      * @param string|int $lte less than or equal
      * @param array $options options to pass into the range query
-     * @return array
+     * @return object
      */
-    public static function range($field, $gte = '', $lte = '', $options = []) :array
+    public static function range($field, $gte = '', $lte = '', $options = []) :\stdClass
     {
         if ($gte !== '') {
             $options['gte'] = $gte;
@@ -113,7 +113,7 @@ class QueryHelper
         if ($lte !== '') {
             $options['lte'] = $lte;
         }
-        return [
+        return (object) [
             'range' => [
                 $field => $options
             ]
@@ -124,11 +124,11 @@ class QueryHelper
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-nested-query.html
      * @param string $path
      * @param string $query
-     * @return array
+     * @return object
      */
-    public static function nest($path, $query = '') :array
+    public static function nest($path, $query = '') :\stdClass
     {
-        return [
+        return (object) [
             'nested' => [
                 'path' => $path,
                 'query' => self::query($query)
@@ -140,11 +140,11 @@ class QueryHelper
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-wildcard-query.html
      * @param string $field
      * @param string $searchQuery
-     * @return array
+     * @return object
      */
-    public static function fullWildcard($field, $searchQuery) :array
+    public static function fullWildcard($field, $searchQuery) :\stdClass
     {
-        return [
+        return (object) [
             'wildcard' => [
                 $field => "*$searchQuery*"
             ]
@@ -156,11 +156,11 @@ class QueryHelper
      * expects * somewhere in the string, if at the end, might as well just use prefix instead
      * @param string $field
      * @param string $searchQuery
-     * @return array
+     * @return object
      */
-    public static function wildcard($field, $searchQuery) :array
+    public static function wildcard($field, $searchQuery) :\stdClass
     {
-        return [
+        return (object) [
             'wildcard' => [
                 $field => "$searchQuery"
             ]
@@ -171,12 +171,12 @@ class QueryHelper
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-suggesters.html#global-suggest
      * @param string $field
      * @param string $searchQuery
-     * @return array
+     * @return object
      */
-    public static function suggest($field, $searchQuery) :array
+    public static function suggest($field, $searchQuery) :\stdClass
     {
         $prefix = self::prefix($field, $searchQuery);
-        return [
+        return (object) [
             'suggest' => $prefix
         ];
     }
@@ -185,11 +185,11 @@ class QueryHelper
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-prefix-query.html
      * @param string $field
      * @param string|array $searchTerms
-     * @return array
+     * @return object
      */
-    public static function prefix($field, $searchTerms) :array
+    public static function prefix($field, $searchTerms) :\stdClass
     {
-        return [
+        return (object) [
             'prefix' => [
                 $field => $searchTerms
             ]
@@ -201,11 +201,11 @@ class QueryHelper
      * @param string $query
      * @param string $type
      * @param int $max_expansions
-     * @return array
+     * @return object
      */
-    public static function multiMatch($fields, $query, $type, $max_expansions) :array
+    public static function multiMatch($fields, $query, $type, $max_expansions) :\stdClass
     {
-        return [
+        return (object) [
             'multi_match' => [
                 'query' => $query,
                 'fields' => $fields,
@@ -220,11 +220,11 @@ class QueryHelper
      * @param $field
      * @param $match
      * @param string $type
-     * @return array
+     * @return object
      */
-    public static function match($field, $match, $type = 'match') :array
+    public static function match($field, $match, $type = 'match') :\stdClass
     {
-        return [
+        return (object) [
             $type => [
                 $field => $match,
             ]
@@ -233,11 +233,11 @@ class QueryHelper
 
     /**
      * @param $field
-     * @return array
+     * @return object
      */
-    public static function exists($field) :array
+    public static function exists($field) :\stdClass
     {
-        return [
+        return (object) [
             'exists' => [
                 'field' => $field,
             ],
@@ -247,7 +247,7 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-all-query.html
      * @param string $query
-     * @return string
+     * @return object
      */
     public static function query($query = '')
     {
@@ -258,11 +258,11 @@ class QueryHelper
      * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html
      * @param string $query
      * @param string $default_field
-     * @return array
+     * @return object
      */
-    public static function query_string($query = '', $default_field = '_all') :array
+    public static function query_string($query = '', $default_field = '_all') :\stdClass
     {
-        return [
+        return (object) [
             'query_string' => [
                 'default_field' => $default_field,
                 'query' => $query,
@@ -273,15 +273,15 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
      * @param integer|null $limit
-     * @return array
+     * @return object
      */
-    public static function limit($limit = null) :array
+    public static function limit($limit = null)
     {
         if(!$limit){
             return [];
         }
 
-        return [
+        return (object) [
             'size' => (int) $limit
         ];
     }
@@ -289,21 +289,21 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
      * @param integer|null $offset
-     * @return array
+     * @return array|object
      */
-    public static function offset($offset = null) :array
+    public static function offset($offset = null)
     {
         if(!$offset){
             return [];
         }
 
-        return [
+        return (object) [
             'from' => (int) $offset
         ];
     }
 
     /**
-     * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
      * @param $columns
      *
      * @return array
@@ -322,15 +322,15 @@ class QueryHelper
      * @param string $column
      * @param int $direction
      * @param string $mode
-     * @return array|object
+     * @return array
      */
-    public static function sortByMode(string $column, int $direction = SORT_ASC, $mode = 'sum')
+    public static function sortByMode(string $column, int $direction = SORT_ASC, $mode = 'sum') :array
     {
         if(!$column){
             return [];
         }
 
-        return (object) [
+        return [
             $column => (object) [
                 'order' => $direction === SORT_DESC ? 'desc' : 'asc',
                 'mode' => $mode,
@@ -339,32 +339,32 @@ class QueryHelper
     }
 
     /**
-     * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#_sort_mode_option
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#_sort_mode_option
      * @param string $column
      * @param int $direction
      * @param string $mode
-     * @return array|object
+     * @return array
      */
-    public static function sortByCount(string $column, int $direction = SORT_ASC, $mode = 'sum')
+    public static function sortByCount(string $column, int $direction = SORT_ASC, $mode = 'sum') :array
     {
         return self::sortByMode($column, $direction, 'sum');
     }
 
     /**
-     * https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#_script_based_sorting
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#_script_based_sorting
      *
      * @example doc['column'].values.size()
      * @param string $column
      * @param int $direction
      * @return array
      */
-    public static function sortByScript($script = '', int $direction = SORT_ASC)
+    public static function sortByScript($script = '', int $direction = SORT_ASC) :array
     {
         if(!$script){
             return [];
         }
 
-        return (object) [
+        return [
             '_script' => [
                 'script' => $script,
                 'type' => 'number',
@@ -377,7 +377,7 @@ class QueryHelper
     /**
      * Adds order by condition to the query
      * @param $columns Examples: ['field' => SORT_ASC]; ['field' => ["order" => "asc", "mode" => "avg"]]
-     * @return array
+     * @return array|object
      */
     private static function buildOrderBy($columns) :array
     {
@@ -408,13 +408,13 @@ class QueryHelper
     }
 
     /**
-     * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-script-query.html
-     * https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-specification.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-script-query.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-specification.html
      * @param string $script
      * @param array $params
      * @return array
      */
-    public static function queryByScript(string $script, $params = [])
+    public static function queryByScript(string $script, $params = []) :array
     {
         return [
             'script' => (object) [

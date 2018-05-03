@@ -57,9 +57,9 @@ $ php yii elasticsearch/index/rebuild index_name
 $ export PHP_IDE_CONFIG="serverName=www.skringo.ztc" && export XDEBUG_CONFIG="remote_host=192.168.1.6 idekey=xdebug" && php7.0 ./yii elasticsearch/index/create products_search
 ```
 
-# Query
+# Aggregation
 
-За основу построителя запроса взят https://github.com/crowdskout/es-search-builder
+За основу построителя запроса взят https://github.com/crowdskout/es-search-builder.git
 
 # TODO
 

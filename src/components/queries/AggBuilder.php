@@ -9,6 +9,10 @@ use mirocow\elasticsearch\components\queries\Aggregation\AggResult;
 use mirocow\elasticsearch\components\queries\Aggregation\Generator\AggGeneratorInterface;
 use mirocow\elasticsearch\components\queries\Aggregation\Generator\DefaultAggGenerator;
 
+/**
+ * Class AggBuilder
+ * @package mirocow\elasticsearch\components\queries
+ */
 class AggBuilder
 {
     /** @var AggGeneratorInterface */
@@ -23,14 +27,15 @@ class AggBuilder
     }
 
     /**
+     * @param string $field
      * @param array $query
      * @param Aggregation $nestedAgg
      * @param string|null $filterKey
      * @return Aggregation
      */
-    public function filter($query, $nestedAgg = null, $filterKey = '')
+    public function filter($field, $query, $nestedAgg = null, $filterKey = '')
     {
-        $aggName = 'filter_agg';
+        $aggName = "{$field}_filter_agg";
         return new Aggregation(
             AggQueryHelper::filter($query, $aggName),
             $this->aggGenerator->getFilterGenerator($aggName, $filterKey),
@@ -39,13 +44,14 @@ class AggBuilder
     }
 
     /**
+     * @param string $field
      * @param array $queries
      * @param Aggregation $nestedAgg
      * @return Aggregation
      */
-    public function filters($queries, $nestedAgg = null)
+    public function filters($field, $queries, $nestedAgg = null)
     {
-        $aggName = 'filters_agg';
+        $aggName = "{$field}_filters_agg";
         return new Aggregation(
             AggQueryHelper::filters($queries, $aggName),
             $this->aggGenerator->getFiltersGenerator($aggName),
@@ -80,6 +86,22 @@ class AggBuilder
         $aggName = "{$method}_aggs";
         return new Aggregation(
             AggQueryHelper::aggs($method, $aggregationsOptions, $aggName),
+            $this->aggGenerator->getAggregationsGenerator($aggName),
+            $nestedAgg
+        );
+    }
+
+    /**
+     * @param $method
+     * @param array $aggregationsOptions
+     * @param null $nestedAgg
+     * @return Aggregation
+     */
+    public function global($method, $aggregationsOptions = [], $nestedAgg = null)
+    {
+        $aggName = "{$method}_aggs";
+        return new Aggregation(
+            AggQueryHelper::global($aggName),
             $this->aggGenerator->getAggregationsGenerator($aggName),
             $nestedAgg
         );
@@ -183,11 +205,17 @@ class AggBuilder
         return new AggregationMulti($aggs);
     }
 
+    /**
+     * @return Aggregation
+     */
     public static function make()
     {
         return new Aggregation([], self::emptyGenerator());
     }
 
+    /**
+     * @return \Closure
+     */
     public static function emptyGenerator()
     {
         return function ($results) {

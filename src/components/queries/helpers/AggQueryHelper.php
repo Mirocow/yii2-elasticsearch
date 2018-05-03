@@ -1,14 +1,19 @@
 <?php
 namespace mirocow\elasticsearch\components\queries\helpers;
 
+/**
+ * Class AggQueryHelper
+ * @package mirocow\elasticsearch\components\queries\helpers
+ */
 class AggQueryHelper
 {
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-filter-aggregation.html
      * @param array $query
      * @param string $aggName
      * @return array
      */
-    public static function filter($query, $aggName = 'filter_agg')
+    public static function filter($query, $aggName = 'filter_agg') :array
     {
         return [
             $aggName => [
@@ -18,28 +23,38 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-filters-aggregation.html
      * @param array $queries
      * @param string $aggName
      * @return array
      */
-    public static function filters($queries, $aggName = 'filters_agg')
+    public static function filters($queries, $aggName = 'filters_agg') :array
     {
+        $terms = [];
+
+        if(!is_array($queries)){
+            $terms[] = $queries;
+        } else {
+            $terms = $queries;
+        }
+
         return [
             $aggName => [
                 'filters' => [
-                    'filters' => $queries,
+                    'filters' => $terms,
                 ]
             ]
         ];
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-terms-aggregation.html
      * @param string $field
      * @param array $termsOptions
      * @param string $aggName
      * @return array
      */
-    public static function terms($field, $termsOptions = [], $aggName = 'terms_agg')
+    public static function terms($field, $termsOptions = [], $aggName = 'terms_agg') :array
     {
         $termsOptions['field'] = $field;
         return [
@@ -55,7 +70,7 @@ class AggQueryHelper
      * @param string $aggName
      * @return array
      */
-    public static function dateHistogram($field, $dateHistogramOptions = [], $aggName = 'date_histogram_agg')
+    public static function dateHistogram($field, $dateHistogramOptions = [], $aggName = 'date_histogram_agg') :array
     {
         $dateHistogramOptions['field'] = $field;
         return [
@@ -66,13 +81,14 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-range-aggregation.html
      * @param string $field
      * @param array $ranges
      * @param array $rangeOptions
      * @param string $aggName
      * @return array
      */
-    public static function range($field, $ranges, $rangeOptions = [], $aggName = 'range_agg')
+    public static function range($field, $ranges, $rangeOptions = [], $aggName = 'range_agg') :array
     {
         $rangeOptions['field'] = $field;
         $rangeOptions['ranges'] = $ranges;
@@ -84,11 +100,12 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-sum-aggregation.html
      * @param string $field
      * @param string $aggName
      * @return array
      */
-    public static function sum($field, $aggName = 'sum_agg')
+    public static function sum($field, $aggName = 'sum_agg') :array
     {
         return [
             $aggName => [
@@ -100,11 +117,12 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-nested-aggregation.html
      * @param string $path
      * @param string $aggName
      * @return array
      */
-    public static function nested($path, $aggName = 'nested_agg')
+    public static function nested($path, $aggName = 'nested_agg') :array
     {
         return [
             $aggName => [
@@ -116,10 +134,11 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-reverse-nested-aggregation.html
      * @param string $aggName
      * @return array
      */
-    public static function reverseNested($aggName = 'reverse_nested_agg')
+    public static function reverseNested($aggName = 'reverse_nested_agg') :array
     {
         return [
             $aggName => [
@@ -129,16 +148,29 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
      * @param $method
      * @param $aggregationsOptions
      * @param string $aggName
      * @return array
      */
-    public static function aggs($method, $aggregationsOptions, $aggName = 'aggs')
+    public static function aggs($method, $aggregationsOptions, $aggName = 'aggs') :array
     {
         return [
             $aggName => [
                 $method => $aggregationsOptions,
+            ]
+        ];
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-global-aggregation.html
+     */
+    public function global($aggName = 'all_products') :array
+    {
+        return [
+            $aggName => [
+                'global' => (object)[],
             ]
         ];
     }

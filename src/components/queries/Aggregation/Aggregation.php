@@ -4,6 +4,10 @@ namespace mirocow\elasticsearch\components\queries\Aggregation;
 use Generator;
 use yii\helpers\ArrayHelper;
 
+/**
+ * Class Aggregation
+ * @package mirocow\elasticsearch\components\queries\Aggregation
+ */
 class Aggregation implements AggregationInterface
 {
     /** @var array */
@@ -133,7 +137,7 @@ class Aggregation implements AggregationInterface
                 $parsedResult = $agg->generateResults($resultCarry, $nestedAggs);
             }
 
-            if (!is_int($key)) {
+            if (!is_int($key) || is_int($parsedResult)) {
                 $out['aggs'] = $parsedResult;
                 if (is_numeric($out['aggs'])) {
                     $out['Total'] += $out['aggs'];
@@ -178,11 +182,16 @@ class Aggregation implements AggregationInterface
             return;
         }
 
-        $this->nestedAggMulti = $agg->nestedAggMulti; // Carry over the multi agg if it exists
+        // Carry over the multi agg if it exists
+        $this->nestedAggMulti = $agg->nestedAggMulti;
+
         // Flatten the nested aggregations
-        $this->nestedAggs = !empty($agg->query) // don't include $agg if its an empty agg
-            ? array_merge($this->nestedAggs, [$agg], $agg->nestedAggs)
-            : array_merge($this->nestedAggs, $agg->nestedAggs);
+        if(empty($agg->query)){
+            $this->nestedAggs = array_merge($this->nestedAggs, $agg->nestedAggs);
+        } else {
+            $this->nestedAggs = array_merge($this->nestedAggs, [$agg], $agg->nestedAggs);
+        }
+
     }
 
     public static function removePrefix($text, $prefix)

@@ -22,7 +22,7 @@ abstract class AbstractSearchIndex implements Index
     /**
      * @var array
      */
-    private $body = [];
+    public $body = [];
 
     /** @var Client */
     protected $client;
@@ -330,20 +330,30 @@ abstract class AbstractSearchIndex implements Index
      * @return array
      * @throws \Exception
      */
-    public function searchDocuments()
+    public function search($flush = true)
     {
-        $fields = [
-            'query', // Query
-            'filter', // Filter execute after request
-            'from', // Limit
-            'size', // Limit
-            'aggs', // Group
-            'highlight',
-            'sort', // Sort
-            '_source',
-        ];
+        if($flush) {
+            $this->body = [];
+        }
 
-        $this->body = [];
+        $fields = [
+            'query', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
+            'filter', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-post-filter.html
+            'from', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
+            'size', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
+            'aggs', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
+            'highlight', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
+            'sort', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
+            '_source', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
+            'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
+            'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
+            'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
+            'rescore', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-rescore.html
+            'explain', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-explain.html
+            'min_score', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
+            'collapse', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-collapse.html
+
+        ];
 
         foreach ($fields as $param){
             if(!empty($this->{$param})){
@@ -355,13 +365,17 @@ abstract class AbstractSearchIndex implements Index
             $this->body['_source'] = $this->withSource;
         }
 
+        /**
+         * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-id-field.html
+         * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
+         */
         if(!$this->sort) {
             $this->body['sort'] = QueryHelper::sortBy(['_id' => ['order' => 'asc']]);
         }
 
         $query = [
           'index' => $this->name(),
-          'type' => $this->type(),
+          'type' => $this->type(), // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
           'body' => $this->body,
         ];
 
