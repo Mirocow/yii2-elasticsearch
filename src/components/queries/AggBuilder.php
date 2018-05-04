@@ -30,12 +30,15 @@ class AggBuilder
      * @param string $field
      * @param array $query
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @param string|null $filterKey
      * @return Aggregation
      */
-    public function filter($field, $query, $nestedAgg = null, $filterKey = '')
+    public function filter($field, $query, $nestedAgg = null, $aggName = '', $filterKey = '')
     {
-        $aggName = "{$field}_filter_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_filter_agg";
+        }
         return new Aggregation(
             AggQueryHelper::filter($query, $aggName),
             $this->aggGenerator->getFilterGenerator($aggName, $filterKey),
@@ -47,11 +50,14 @@ class AggBuilder
      * @param string $field
      * @param array $queries
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function filters($field, $queries, $nestedAgg = null)
+    public function filters($field, $queries, $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$field}_filters_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_filters_agg";
+        }
         return new Aggregation(
             AggQueryHelper::filters($queries, $aggName),
             $this->aggGenerator->getFiltersGenerator($aggName),
@@ -60,14 +66,18 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-terms-aggregation.html
      * @param string $field
      * @param array $termsOptions
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function terms($field, $termsOptions = [], $nestedAgg = null)
+    public function terms($field, $termsOptions = [], $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$field}_terms_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_terms_agg";
+        }
         return new Aggregation(
             AggQueryHelper::terms($field, $termsOptions, $aggName),
             $this->aggGenerator->getTermsGenerator($aggName),
@@ -79,11 +89,14 @@ class AggBuilder
      * @param $method
      * @param array $aggregationsOptions
      * @param null $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function aggs($method, $aggregationsOptions = [], $nestedAgg = null)
+    public function aggs($method, $aggregationsOptions = [], $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$method}_aggs";
+        if(!$aggName) {
+            $aggName = "{$method}_aggs";
+        }
         return new Aggregation(
             AggQueryHelper::aggs($method, $aggregationsOptions, $aggName),
             $this->aggGenerator->getAggregationsGenerator($aggName),
@@ -95,11 +108,14 @@ class AggBuilder
      * @param $method
      * @param array $aggregationsOptions
      * @param null $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function global($method, $aggregationsOptions = [], $nestedAgg = null)
+    public function global($method, $aggregationsOptions = [], $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$method}_aggs";
+        if(!$aggName) {
+            $aggName = "{$method}_aggs";
+        }
         return new Aggregation(
             AggQueryHelper::global($aggName),
             $this->aggGenerator->getAggregationsGenerator($aggName),
@@ -121,12 +137,15 @@ class AggBuilder
      * @param string $field
      * @param array $dateHistogramOptions
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @param bool $keyAsString
      * @return Aggregation
      */
-    public function dateHistogram($field, $dateHistogramOptions = [], $nestedAgg = null, $keyAsString = true)
+    public function dateHistogram($field, $dateHistogramOptions = [], $nestedAgg = null, $aggName = '', $keyAsString = true)
     {
-        $aggName = "{$field}_date_histogram_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_date_histogram_agg";
+        }
         return new Aggregation(
             AggQueryHelper::dateHistogram($field, $dateHistogramOptions, $aggName),
             $this->aggGenerator->getDateHistogramGenerator($aggName, $keyAsString),
@@ -139,11 +158,14 @@ class AggBuilder
      * @param array $ranges
      * @param array $rangeOptions
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function range($field, $ranges, $rangeOptions = [], $nestedAgg = null)
+    public function range($field, $ranges, $rangeOptions = [], $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$field}_range_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_range_agg";
+        }
         return new Aggregation(
             AggQueryHelper::range($field, $ranges, $rangeOptions, $aggName),
             $this->aggGenerator->getRangeGenerator($aggName),
@@ -154,12 +176,15 @@ class AggBuilder
     /**
      * @param string $field
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @param string $filterKey
      * @return Aggregation
      */
-    public function sum($field, $nestedAgg = null, $filterKey = 'Sum')
+    public function sum($field, $nestedAgg = null, $aggName = '', $filterKey = 'Sum')
     {
-        $aggName = "{$field}_sum_agg";
+        if(!$aggName) {
+            $aggName = "{$field}_sum_agg";
+        }
         return new Aggregation(
             AggQueryHelper::sum($field, $aggName),
             $this->aggGenerator->getSumGenerator($aggName, $filterKey),
@@ -170,11 +195,14 @@ class AggBuilder
     /**
      * @param string $path
      * @param array $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function nested($path, $nestedAgg = null)
+    public function nested($path, $nestedAgg = null, $aggName = '')
     {
-        $aggName = "{$path}_nested_agg";
+        if(!$aggName) {
+            $aggName = "{$path}_nested_agg";
+        }
         return new Aggregation(
             AggQueryHelper::nested($path, $aggName),
             $this->aggGenerator->getNestedGenerator($aggName),
@@ -184,11 +212,14 @@ class AggBuilder
 
     /**
      * @param Aggregation $nestedAgg
+     * @param string $aggName
      * @return Aggregation
      */
-    public function reverseNested($nestedAgg = null)
+    public function reverseNested($nestedAgg = null, $aggName = '')
     {
-        $aggName = "reverse_nested_agg";
+        if(!$aggName) {
+            $aggName = "reverse_nested_agg";
+        }
         return new Aggregation(
             AggQueryHelper::reverseNested($aggName),
             $this->aggGenerator->getReverseNestedGenerator($aggName),

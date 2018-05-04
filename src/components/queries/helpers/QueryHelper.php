@@ -69,6 +69,7 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-terms-query.html
      * @param string $field
      * @param string[]|int[] $terms
      * @return object
@@ -121,12 +122,13 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/nested.html
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-nested-query.html
      * @param string $path
      * @param string $query
      * @return object
      */
-    public static function nest($path, $query = '') :\stdClass
+    public static function nested($path, $query = '') :\stdClass
     {
         return (object) [
             'nested' => [
