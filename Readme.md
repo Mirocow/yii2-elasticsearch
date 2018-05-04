@@ -65,6 +65,11 @@ $ export PHP_IDE_CONFIG="serverName=www.skringo.ztc" && export XDEBUG_CONFIG="re
 
 Посмотреть на:
 
+* https://github.com/spryker/demoshop
+* https://github.com/spryker/spryker-core
+* https://www.techdivision.com/blog/code-talks-commerce-special-2016-tag-2.html
+* https://project-a.github.io/on-site-search-design-patterns-for-e-commerce/#text-analysis
+* https://stackoverflow.com/questions/41369749/elasticsearch-generic-facets-structure-calculating-aggregations-combined-wit/41559894
 * https://github.com/inpsyde/elastic-facets
 * https://github.com/ongr-io/ElasticsearchDSL/tree/master/src (https://github.com/ongr-io/ElasticsearchDSL/blob/master/docs/index.md)
 * https://github.com/kiwiz/ecl ?
