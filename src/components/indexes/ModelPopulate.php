@@ -5,6 +5,7 @@ use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
+use yii\helpers\ArrayHelper;
 
 class ModelPopulate
 {
@@ -13,20 +14,13 @@ class ModelPopulate
 
     public $indexBy = 'id';
 
-    private $refresh = true;
+    private $select = '';
 
     protected $result = [];
 
     public function __construct(array &$result = [])
     {
         $this->result = $result;
-    }
-
-    public function refresh($refresh = false)
-    {
-        $this->refresh = $refresh;
-
-        return $this;
     }
 
     /**
@@ -52,6 +46,8 @@ class ModelPopulate
                         $key = reset($row['fields'][$this->indexBy]);
                     } elseif (isset($row['_source'][$this->indexBy])){
                         $key = $row['_source'][$this->indexBy];
+                    } elseif (isset($row[$this->indexBy])){
+                        $key = $row[$this->indexBy];
                     } else {
                         $key = $i++;
                     }
@@ -127,23 +123,28 @@ class ModelPopulate
 
                     /** @var ActiveRecord $modelClass */
                     $modelClass = get_class($model);
+
                     if(isset($row['_source'])) {
-                        $modelClass::populateRecord($model, $row['_source']);
-                    } else {
+                        $row = $row['_source'];
+                    }
+
+                    $modelClass::populateRecord($model, $row);
+
+                    // We have all model`s attributes
+                    if(count($model->attributes) <> count($row)) {
                         $model = $modelClass::findOne($row['_id']);
 
                         if(!$model){
                             continue;
                         }
                     }
+
                     if (is_string($this->indexBy)) {
                         $key = $model->{$this->indexBy};
                     } else {
                         $key = call_user_func($this->indexBy, $model);
                     }
-                    if($this->refresh){
-                        $model->refresh();
-                    }
+
                     $models[$key] = $model;
                 }
             }
@@ -209,21 +210,48 @@ class ModelPopulate
     }
 
     /**
+     * @param $select
+     */
+    public function select($select)
+    {
+        $this->select = $select;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function search()
     {
         $result = &$this->result;
 
-        if (!empty($result['hits']['hits']) && !$this->asArray) {
-            $models = $this->createModels($result['hits']['hits']);
-            if (!empty($this->with)) {
-                $this->findWith($this->with, $models);
+        if(!empty($result['hits']['hits'])) {
+            if ($this->select) {
+                $hits = [];
+                foreach ($result['hits']['hits'] as $item) {
+                    if(substr($this->select, -2) == '.*') {
+                        $hits = array_merge(
+                            $hits,
+                            ArrayHelper::getValue($item, substr($this->select, 0, strlen($this->select)-2))
+                        );
+                    } else {
+                        $hits[] = ArrayHelper::getValue($item, $this->select);
+                    }
+                }
+                $result['hits']['hits'] = $hits;
             }
-            foreach ($models as $model) {
-                $model->afterFind();
+
+            if (!$this->asArray) {
+                $models = $this->createModels($result['hits']['hits']);
+                if (!empty($this->with)) {
+                    $this->findWith($this->with, $models);
+                }
+                foreach ($models as $model) {
+                    $model->afterFind();
+                }
+                $result['hits']['hits'] = $models;
             }
-            $result['hits']['hits'] = $models;
         }
 
         return $result;

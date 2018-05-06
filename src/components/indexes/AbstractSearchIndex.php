@@ -29,6 +29,18 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /** @inheritdoc */
+    public function name()
+    {
+        return $this->index_name;
+    }
+
+    /** @inheritdoc */
+    public function type()
+    {
+        return $this->index_type;
+    }
+
+    /** @inheritdoc */
     public function exists() :bool
     {
         $exists = true;
@@ -138,6 +150,10 @@ abstract class AbstractSearchIndex implements Index
      */
     public function result($arrayPath = '')
     {
+        if(empty($this->result['hits']['hits'])){
+            return [];
+        }
+
         if($arrayPath) {
             return ArrayHelper::getValue($this->result, $arrayPath);
         }
@@ -146,6 +162,8 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
+     * Execute query DSL
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl.html
      * @param array $query
      * @return $this
      * @throws \Exception

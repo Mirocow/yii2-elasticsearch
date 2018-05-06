@@ -14,4 +14,5 @@ class Query extends \ArrayObject
     {
         return Json::encode($this);
     }
+
 }

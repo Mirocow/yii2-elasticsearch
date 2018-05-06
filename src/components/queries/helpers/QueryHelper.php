@@ -1,6 +1,8 @@
 <?php
 namespace mirocow\elasticsearch\components\queries\helpers;
 
+use yii\helpers\ArrayHelper;
+
 class QueryHelper
 {
     /**
@@ -74,7 +76,7 @@ class QueryHelper
      * @param string[]|int[] $terms
      * @return object
      */
-    public static function terms($field, $terms) :\stdClass
+    public static function terms($field, $terms = []) :\stdClass
     {
         return (object) [
             'terms' => [
@@ -199,21 +201,24 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-multi-match-query.html
      * @param array $fields
      * @param string $query
      * @param string $type
-     * @param int $max_expansions
      * @return object
      */
-    public static function multiMatch($fields, $query, $type, $max_expansions) :\stdClass
+    public static function multiMatch($fields, $query, $type, $searchQuery = []) :\stdClass
     {
+        $query = [
+            'query' => $query,
+            'fields' => $fields,
+            'type' => $type,
+        ];
+
+        $searchQuery = ArrayHelper::merge($query, $searchQuery);
+
         return (object) [
-            'multi_match' => [
-                'query' => $query,
-                'fields' => $fields,
-                'type' => $type,
-                'max_expansions' => $max_expansions,
-            ],
+            'multi_match' => $searchQuery
         ];
     }
 

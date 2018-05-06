@@ -1,3 +1,6 @@
+# Yii2 Elasticsearch client
+based on https://github.com/elastic/elasticsearch-php
+
 # Install
 
 ```bash
