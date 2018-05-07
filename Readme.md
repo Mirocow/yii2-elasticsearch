@@ -4,7 +4,7 @@ based on https://github.com/elastic/elasticsearch-php
 # Install
 
 ```bash
-$ composer require --prefer-dist elasticsearch/elasticsearch
+$ composer require --prefer-dist mirocow/yii2-elasticsearch
 ```
 
 # Configure
