@@ -58,7 +58,7 @@ $ php yii elasticsearch/index/rebuild
 # Debug
 
 ```bash
-$ export PHP_IDE_CONFIG="serverName=www.skringo.ztc" && export XDEBUG_CONFIG="remote_host=192.168.1.6 idekey=xdebug" && php7.0 ./yii elasticsearch/index/create products_search
+$ export PHP_IDE_CONFIG="serverName=www.site.loc" && export XDEBUG_CONFIG="remote_host=192.168.1.6 idekey=xdebug" && php7.0 ./yii elasticsearch/index/create products_search
 ```
 
 # Query
