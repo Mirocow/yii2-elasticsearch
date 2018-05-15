@@ -65,6 +65,7 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-datehistogram-aggregation.html
      * @param string $field
      * @param array $dateHistogramOptions
      * @param string $aggName

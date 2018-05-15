@@ -61,7 +61,6 @@ class AggregationMulti implements AggregationInterface
     public function generateResults($results)
     {
         $out = ['Total' => 0];
-        unset($results['doc_count']);
 
         // preparing the result sets by parsing out the prefix
         // if there is a multi under this multi, it will all be on the same level so
@@ -77,11 +76,11 @@ class AggregationMulti implements AggregationInterface
         $i = 0;
         foreach ($this->aggs as $label => $agg) {
             $prefix = $i++ . "_";
-            $out['aggs'][$label] = $agg->generateResults($resultSets[$prefix]);
-            if (is_numeric($out['aggs'][$label])) {
-                $out['Total'] += $out['aggs'][$label];
-            } elseif (isset($out['aggs'][$label]['Total'])) {
-                $out['Total'] += $out['aggs'][$label]['Total'];
+            $out[$label] = $agg->generateResults($resultSets[$prefix]);
+            if (is_numeric($out[$label])) {
+                $out['Total'] += $out[$label];
+            } elseif (isset($out[$label]['Total'])) {
+                $out['Total'] += $out[$label]['Total'];
             }
         }
 

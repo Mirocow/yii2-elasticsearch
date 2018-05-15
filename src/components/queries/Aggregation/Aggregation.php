@@ -131,34 +131,37 @@ class Aggregation implements AggregationInterface
             $resultCarry = $aggResult->getResultsCarry();
             $parsedResult = $aggResult->getParsedResult();
 
-            if ($agg instanceof AggregationMulti) {
-                $parsedResult = $agg->generateResults($resultCarry);
-            } elseif ($agg !== null) {
-                $parsedResult = $agg->generateResults($resultCarry, $nestedAggs);
+            if(!$agg){
+                $out['aggs'][$key] = $parsedResult;
+            } else {
+                if ($agg instanceof AggregationMulti) {
+                    $parsedResult = $agg->generateResults($resultCarry);
+                } elseif ($agg !== null) {
+                    $parsedResult = $agg->generateResults($resultCarry, $nestedAggs);
+                }
             }
 
-            if (!is_int($key) || is_int($parsedResult)) {
-                $out['aggs'] = $parsedResult;
-                if (is_numeric($out['aggs'])) {
-                    $out['Total'] += $out['aggs'];
-                } elseif (isset($out['aggs']['Total'])) {
-                    $out['Total'] += $out['aggs']['Total'];
-                } elseif (is_array($out['aggs'])) {
-                    $out['Total'] += count($out['aggs']);
-                }
-            } else {
-                $out['aggs'] = ArrayHelper::merge($out['aggs'], $parsedResult['aggs']);
-                if (is_numeric($out['aggs'])) {
-                    $out['Total'] += $out['aggs'];
-                } elseif (isset($out['aggs']['Total'])) {
-                    $out['Total'] += $out['aggs']['Total'];
-                } elseif (is_array($out['aggs'])) {
-                    $out['Total'] += count($out['aggs']);
+            if(isset($parsedResult['aggs'])){
+                if(is_array($parsedResult['aggs'])) {
+                    $out[ 'aggs' ] = ArrayHelper::merge($out[ 'aggs' ], $parsedResult[ 'aggs' ]);
+                } elseif(is_int($parsedResult)){
+                    $out['Total'] += $parsedResult;
                 }
             }
+
+            if(isset($out['aggs'])) {
+                if (is_numeric($out[ 'aggs' ])) {
+                    $out[ 'Total' ] += $out[ 'aggs' ];
+                } elseif (isset($out[ 'aggs' ][ 'Total' ])) {
+                    $out[ 'Total' ] += $out[ 'aggs' ][ 'Total' ];
+                } elseif (is_array($out[ 'aggs' ])) {
+                    $out[ 'Total' ] += count($out[ 'aggs' ]);
+                }
+            }
+
         }
 
-        return !empty($out['aggs']) ? $out : [];
+        return $out;
     }
 
     /**

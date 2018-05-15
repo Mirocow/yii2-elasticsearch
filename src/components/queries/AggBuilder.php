@@ -27,6 +27,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-filter-aggregation.html
      * @param string $field
      * @param array $query
      * @param Aggregation $nestedAgg
@@ -47,6 +48,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-filters-aggregation.html
      * @param string $field
      * @param array $queries
      * @param Aggregation $nestedAgg
@@ -86,6 +88,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
      * @param $method
      * @param array $aggregationsOptions
      * @param null $nestedAgg
@@ -105,6 +108,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-global-aggregation.html
      * @param $method
      * @param array $aggregationsOptions
      * @param null $nestedAgg
@@ -124,6 +128,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-top-hits-aggregation.html#_top_hits_support_in_a_nested_or_reverse_nested_aggregator
      * @param array $aggregationsOptions
      * @param null $nestedAgg
      * @return Aggregation
@@ -134,6 +139,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-datehistogram-aggregation.html
      * @param string $field
      * @param array $dateHistogramOptions
      * @param Aggregation $nestedAgg
@@ -154,6 +160,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-range-aggregation.html
      * @param string $field
      * @param array $ranges
      * @param array $rangeOptions
@@ -174,6 +181,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-sum-aggregation.html
      * @param string $field
      * @param Aggregation $nestedAgg
      * @param string $aggName
@@ -193,6 +201,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-nested-aggregation.html
      * @param string $path
      * @param array $nestedAgg
      * @param string $aggName
@@ -211,6 +220,7 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-reverse-nested-aggregation.html
      * @param Aggregation $nestedAgg
      * @param string $aggName
      * @return Aggregation

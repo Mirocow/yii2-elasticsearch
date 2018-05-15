@@ -281,19 +281,26 @@ class DefaultAggGenerator implements AggGeneratorInterface
     {
         return $generator = function ($results) use ($aggName) {
 
-            //
+            /**
+             * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/ml-results-resource.html#ml-results-buckets
+             */
             if (isset($results[$aggName]['buckets'])) {
                 foreach ($results[$aggName]['buckets'] as $bucket) {
                     yield $bucket['key'] => new AggResult($bucket['doc_count'], $bucket);
                 }
             }
 
-            //
-            if (isset($results[$aggName]['hits'])) {
-                yield $aggName => new AggResult($results[$aggName], $results[$aggName]['hits']['hits']);
+            /**
+             * top_hits, etc
+             * @see
+             */
+            if (isset($results[$aggName]['hits']['hits'])) {
+                yield $aggName => new AggResult($results[$aggName], $results[$aggName]);
             }
 
-            //
+            /**
+             * The number of documents that have at least one term for this field, or -1 if this measurement isn’t available on one or more shards.
+             */
             if (isset($results[$aggName]['doc_count'])) {
                 yield $aggName => new AggResult($results, $results[$aggName]);
             }
