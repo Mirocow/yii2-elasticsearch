@@ -143,7 +143,15 @@ class Aggregation implements AggregationInterface
 
             if(isset($parsedResult['aggs'])){
                 if(is_array($parsedResult['aggs'])) {
-                    $out[ 'aggs' ] = ArrayHelper::merge($out[ 'aggs' ], $parsedResult[ 'aggs' ]);
+                    // Group by name
+                    if(is_string($key)){
+                        if(!isset($out[ 'aggs' ][$key])){
+                            $out[ 'aggs' ][$key] = [];
+                        }
+                        $out[ 'aggs' ][$key] = ArrayHelper::merge($out[ 'aggs' ][$key], $parsedResult[ 'aggs' ]);
+                    } else {
+                        $out[ 'aggs' ] = ArrayHelper::merge($out[ 'aggs' ], $parsedResult[ 'aggs' ]);
+                    }
                 } elseif(is_int($parsedResult)){
                     $out['Total'] += $parsedResult;
                 }
