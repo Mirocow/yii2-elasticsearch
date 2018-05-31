@@ -231,12 +231,16 @@ class ModelPopulate
                 $hits = [];
                 foreach ($result['hits']['hits'] as $item) {
                     if(substr($this->select, -2) == '.*') {
-                        $hits = array_merge(
-                            $hits,
-                            ArrayHelper::getValue($item, substr($this->select, 0, strlen($this->select)-2))
-                        );
+                        $key = substr($this->select, 0, strlen($this->select)-2);
+                        $values = ArrayHelper::getValue($item, $key);
+                        if($values) {
+                            $hits = array_merge($hits, $values);
+                        }
                     } else {
-                        $hits[] = ArrayHelper::getValue($item, $this->select);
+                        $value = ArrayHelper::getValue($item, $this->select);
+                        if($value) {
+                            $hits[] = $value;
+                        }
                     }
                 }
                 $result['hits']['hits'] = $hits;
