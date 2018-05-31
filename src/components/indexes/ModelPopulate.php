@@ -128,6 +128,10 @@ class ModelPopulate
                         $row = $row['_source'];
                     }
 
+                    if(is_numeric($row)){
+                        $row = ['_id' => $row];
+                    }
+
                     $modelClass::populateRecord($model, $row);
 
                     // We have all model`s attributes
