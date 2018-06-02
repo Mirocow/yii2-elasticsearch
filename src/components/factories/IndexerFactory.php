@@ -60,10 +60,16 @@ class IndexerFactory
                 $indexConfig = ArrayHelper::merge($indexConfig, $config);
                 break;
             }
+            // Get config data from parrent class
+            if(get_parent_class($className) == $config['class']){
+                unset($config['class']);
+                $indexConfig = ArrayHelper::merge($indexConfig, $config);
+                break;
+            }
         }
 
         if(!$indexConfig){
-            throw new Exception("Config not found");
+            throw new Exception("Config data not found");
         }
 
         return Yii::$container->get($className, $construct = [], $indexConfig);
