@@ -132,15 +132,27 @@ class ModelPopulate
                         $row = ['_id' => $row];
                     }
 
+                    // Fill attributes from _source
                     $modelClass::populateRecord($model, $row);
 
-                    // We have all model`s attributes
+                    // We haven`t all model`s attributes
                     if(count($model->attributes) <> count($row)) {
-                        $model = $modelClass::findOne($row['_id']);
+
+                        // If exists use special elasticserch field
+                        if(!empty($row['_id'])){
+                            $id = $row['_id'];
+                        } elseif(!empty($row[$this->indexBy])) {
+                            $id = $row[$this->indexBy];
+                        } else {
+                            continue;
+                        }
+
+                        $model = $modelClass::findOne(['id' => $id]);
 
                         if(!$model){
                             continue;
                         }
+
                     }
 
                     if (is_string($this->indexBy)) {
