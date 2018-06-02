@@ -29,10 +29,10 @@ class ActionUpgrade extends ConsoleAction
     }
 
     /** @inheritdoc */
-    public function run()
+    public function run(string $indexName = '')
     {
         try {
-            $this->indexer->upgradeIndexes();
+            $this->indexer->upgradeIndexes($indexName);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {

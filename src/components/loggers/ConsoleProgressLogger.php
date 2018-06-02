@@ -29,8 +29,7 @@ final class ConsoleProgressLogger implements ProgressLogger
         $lineTerminator = $currentStep < $totalSteps ? '' : PHP_EOL;
 
         Console::stdout(
-            sprintf("\rDone %d", $percent).'%'.
-            ' ('.$currentStep.'/'.$totalSteps.')'.
+            sprintf("\rDone %d", $percent).'%'. ' ('.$currentStep.'/'.$totalSteps.')'.
             $lineTerminator
         );
 

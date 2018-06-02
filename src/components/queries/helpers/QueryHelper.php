@@ -239,6 +239,18 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-date-format.html
+     * @param $format
+     * @return object
+     */
+    public static function format($format)
+    {
+        return (object) [
+            'format' => $format,
+        ];
+    }
+
+    /**
      * @param $field
      * @return object
      */

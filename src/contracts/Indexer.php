@@ -43,7 +43,7 @@ interface Indexer
      *
      * @return void
      */
-    public function rebuild(string $indexName) ;
+    public function rebuild(string $indexName = '') ;
 
     /**
      * Индексирует все документы в указанном индексе
@@ -51,7 +51,7 @@ interface Indexer
      * @param string $indexName
      * @return void
      */
-    public function populate(string $indexName) ;
+    public function populate(string $indexName = '') ;
 
     /**
      * Инициализирует индекс по его названию
@@ -60,14 +60,14 @@ interface Indexer
      * @throws SearchIndexerException
      * @return void
      */
-    public function createIndex(string $indexName) ;
+    public function createIndex(string $indexName = '') ;
 
     /**
      * Получает объект созданного индекса
      * @param string $indexName
      * @return mixed
      */
-    public function getIndex(string $indexName) ;
+    public function getIndex(string $indexName = '') ;
 
     /**
      * Удаляет индекс по его названию
@@ -76,21 +76,8 @@ interface Indexer
      * @throws SearchIndexerException
      * @return void
      */
-    public function destroyIndex(string $indexName) ;
+    public function destroyIndex(string $indexName = '') ;
 
-    /**
-     * Иницализирует все индексы
-     *
-     * @return void
-     */
-    public function createIndexes() ;
-
-    /**
-     * Удаляет все индексы
-     *
-     * @return void
-     */
-    public function destroyIndexes() ;
 
     /**
      * Перестраивает индекс по его названию
@@ -99,12 +86,6 @@ interface Indexer
      * @throws SearchIndexerException
      * @return void
      */
-    public function upgradeIndex(string $indexName) ;
+    public function upgradeIndex(string $indexName = '') ;
 
-    /**
-     * Перестраивает все индексы
-     *
-     * @return void
-     */
-    public function upgradeIndexes() ;
 }

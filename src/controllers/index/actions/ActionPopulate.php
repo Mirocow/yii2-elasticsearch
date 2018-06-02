@@ -32,7 +32,7 @@ class ActionPopulate extends ConsoleAction
      * @inheritdoc
      * @param string $indexName
      */
-    public function run(string $indexName)
+    public function run(string $indexName = '')
     {
         try {
             $this->indexer->populate($indexName);

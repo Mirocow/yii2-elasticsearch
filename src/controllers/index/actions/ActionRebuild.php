@@ -29,7 +29,7 @@ class ActionRebuild extends ConsoleAction
     }
 
     /** @inheritdoc */
-    public function run(string $indexName)
+    public function run(string $indexName = '')
     {
         try {
             $this->indexer->rebuild($indexName);

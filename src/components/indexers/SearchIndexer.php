@@ -1,15 +1,16 @@
 <?php
 namespace mirocow\elasticsearch\components\indexers;
 
-use mirocow\elasticsearch\contracts\ProgressLogger;
 use mirocow\elasticsearch\contracts\Index;
 use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\contracts\ProgressLogger;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 final class SearchIndexer implements Indexer
 {
     /** @var Index[] */
     private $indexes = [];
+
     /** @var ProgressLogger */
     private $progressLogger;
 
@@ -17,13 +18,14 @@ final class SearchIndexer implements Indexer
      * SearchIndexer constructor.
      * @param ProgressLogger $progressLogger
      */
-    public function __construct(
-      ProgressLogger $progressLogger
-    ) {
+    public function __construct(ProgressLogger $progressLogger)
+    {
         $this->progressLogger = $progressLogger;
     }
 
-    /** @inheritdoc */
+    /**
+     * @param Index $index
+     */
     public function registerIndex(Index $index)
     {
         if (!isset($this->indexes[$index->name()])) {
@@ -32,18 +34,88 @@ final class SearchIndexer implements Indexer
 
     }
 
-    public function getIndex(string $indexName)
+    /**
+     * @param $indexName
+     * @return array|Index[]
+     * @throws SearchIndexerException
+     */
+    private function getIndexes($indexName)
     {
-        foreach ($this->indexes as $index) {
-            if ($indexName instanceof $index) {
-                $this->progressLogger->logMessage('Load index: ' . $index->name());
-                return $index;
+        $indexes = [];
+
+        if(!$indexName){
+            $indexes = $this->indexes;
+        } else {
+            foreach ($this->indexes as $index) {
+                if ($index->name() === $indexName) {
+                    $indexes[] = $index;
+                    break;
+                }
             }
         }
-        throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
+
+        if(!$indexes){
+            if($indexName) {
+                throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
+            } else {
+                throw new SearchIndexerException('Indexes can not be empty');
+            }
+        }
+
+        return $indexes;
     }
 
-    /** @inheritdoc */
+    /**
+     * @param string $indexName
+     * @return array|Index[]|mixed
+     * @throws SearchIndexerException
+     */
+    public function getIndex(string $indexName = '')
+    {
+        return $this->getIndexes($indexName);
+    }
+
+    /**
+     * @param string $indexName
+     * @throws SearchIndexerException
+     */
+    public function createIndex(string $indexName = '')
+    {
+        foreach ($this->getIndexes($indexName) as $index) {
+            $this->progressLogger->logMessage('Creating index: ' . $index->name());
+            $index->create();
+        }
+
+    }
+
+    /**
+     * @param string $indexName
+     * @throws SearchIndexerException
+     */
+    public function destroyIndex(string $indexName = '')
+    {
+        foreach ($this->getIndexes($indexName) as $index) {
+            $this->progressLogger->logMessage('Destroying index: ' . $index->name());
+            $index->destroy();
+        }
+    }
+
+    /**
+     * @param string $indexName
+     * @throws SearchIndexerException
+     */
+    public function upgradeIndex(string $indexName = '')
+    {
+        foreach ($this->getIndexes($indexName) as $index) {
+            $this->progressLogger->logMessage('Upgrade index: ' . $index->name());
+            $index->upgrade();
+        }
+    }
+
+    /**
+     * @param mixed $document
+     * @throws SearchIndexerException
+     */
     public function index($document)
     {
         foreach ($this->indexes as $index) {
@@ -61,7 +133,10 @@ final class SearchIndexer implements Indexer
         throw new SearchIndexerException('No index registered for provided document');
     }
 
-    /** @inheritdoc */
+    /**
+     * @param mixed $document
+     * @throws SearchIndexerException
+     */
     public function remove($document)
     {
         foreach ($this->indexes as $index) {
@@ -74,118 +149,39 @@ final class SearchIndexer implements Indexer
     }
 
     /**
-     * @inheritdoc
+     * @param string $indexName
      * @throws SearchIndexerException
      */
-    public function rebuild(string $indexName)
+    public function populate(string $indexName = '')
+    {
+        foreach ($this->getIndexes($indexName) as $index) {
+
+            if (!$index->exists()) {
+                throw new SearchIndexerException('Index ' . $indexName . ' is not initialized');
+            }
+
+            $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name());
+
+            $totalSteps = $index->documentCount();
+            $step = 1;
+            foreach ($index->documentIds() as $documentId) {
+                $index->addById($documentId);
+                $this->progressLogger->logProgress($totalSteps, $step);
+                $step++;
+            }
+
+        }
+    }
+
+    /**
+     * @param string $indexName
+     * @throws SearchIndexerException
+     */
+    public function rebuild(string $indexName = '')
     {
         $this->destroyIndex($indexName);
         $this->createIndex($indexName);
-        foreach ($this->indexes as $index) {
-            $this->populate($index->name());
-        }
-    }
-
-    /** @inheritdoc */
-    public function populate(string $indexName)
-    {
-        if (!isset($this->indexes[$indexName])) {
-            throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
-        }
-
-        $index = $this->indexes[$indexName];
-        if (!$index->exists()) {
-            throw new SearchIndexerException('Index ' . $indexName . ' is not initialized');
-        }
-
-        $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name());
-
-        $totalSteps = $index->documentCount();
-        $step       = 1;
-        foreach ($index->documentIds() as $documentId) {
-            $index->addById($documentId);
-            $this->progressLogger->logProgress($totalSteps, $step);
-            $step++;
-        }
-    }
-
-    /** @inheritdoc */
-    public function createIndex(string $indexName)
-    {
-        foreach ($this->indexes as $index) {
-            if ($index->name() === $indexName) {
-                $this->progressLogger->logMessage('Creating index: ' . $index->name());
-                $index->create();
-                return;
-            }
-        }
-        throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
-    }
-
-    /** @inheritdoc */
-    public function destroyIndex(string $indexName)
-    {
-        foreach ($this->indexes as $index) {
-            if ($index->name() === $indexName) {
-                $this->progressLogger->logMessage('Destroying index: ' . $index->name());
-                $index->destroy();
-                return;
-            }
-        }
-        throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
-    }
-
-    /**
-     * @inheritdoc
-     * @throws SearchIndexerException
-     */
-    public function createIndexes()
-    {
-        foreach ($this->indexes as $index) {
-            if (!$index->exists()) {
-                $this->createIndex($index->name());
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc
-     * @throws SearchIndexerException
-     */
-    public function destroyIndexes()
-    {
-        foreach ($this->indexes as $index) {
-            if ($index->exists()) {
-                $this->destroyIndex($index->name());
-            }
-        }
-    }
-
-    /** @inheritdoc */
-    public function upgradeIndex(string $indexName)
-    {
-        foreach ($this->indexes as $index) {
-            if ($index->name() === $indexName) {
-                $this->progressLogger->logMessage('Upgrade index: ' . $index->name());
-                $index->upgrade();
-                return;
-            }
-        }
-        throw new SearchIndexerException('Index ' . $indexName . ' is not registered in search indexer');
-    }
-
-    /**
-     * @inheritdoc
-     * @throws SearchIndexerException
-     */
-    public function upgradeIndexes()
-    {
-        foreach ($this->indexes as $index) {
-            if ($index->exists()) {
-                $this->upgradeIndex($index->name());
-            }
-        }
-
+        $this->populate($indexName);
     }
 
 }

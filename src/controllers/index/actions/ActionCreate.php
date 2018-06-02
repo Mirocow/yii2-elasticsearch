@@ -32,7 +32,7 @@ class ActionCreate extends ConsoleAction
      * @inheritdoc
      * @param string $indexName
      */
-    public function run(string $indexName)
+    public function run(string $indexName = '')
     {
         try {
             $this->indexer->createIndex($indexName);
