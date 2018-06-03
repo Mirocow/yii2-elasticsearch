@@ -97,72 +97,54 @@ class ModelPopulate
             /* @var $class ActiveRecord */
             $class = $this->modelClass;
 
-            if ($this->indexBy === null) {
-                foreach ($rows as $row) {
-                    $model = $class::instantiate($row);
+            if($this->indexBy === null){
+                $this->indexBy = '_id';
+            }
 
-                    /** @var ActiveRecord $modelClass */
-                    $modelClass = get_class($model);
-                    if(isset($row['_source'])) {
-                        $modelClass::populateRecord($model, $row['_source']);
-                    } else {
-                        $model = $modelClass::findOne($row['_id']);
+            foreach ($rows as $row) {
+                $model = $class::instantiate($row);
 
-                        if(!$model){
-                            continue;
-                        }
-                    }
-                    if($this->refresh){
-                        $model->refresh();
-                    }
-                    $models[] = $model;
+                /** @var ActiveRecord $modelClass */
+                $modelClass = get_class($model);
+
+                if(isset($row['_source'])) {
+                    $row = $row['_source'];
                 }
-            } else {
-                foreach ($rows as $row) {
-                    $model = $class::instantiate($row);
 
-                    /** @var ActiveRecord $modelClass */
-                    $modelClass = get_class($model);
-
-                    if(isset($row['_source'])) {
-                        $row = $row['_source'];
-                    }
-
-                    if(is_numeric($row)){
-                        $row = ['_id' => $row];
-                    }
-
-                    // Fill attributes from _source
-                    $modelClass::populateRecord($model, $row);
-
-                    // We haven`t all model`s attributes
-                    if(count($model->attributes) <> count($row)) {
-
-                        // If exists use special elasticserch field
-                        if(!empty($row['_id'])){
-                            $id = $row['_id'];
-                        } elseif(!empty($row[$this->indexBy])) {
-                            $id = $row[$this->indexBy];
-                        } else {
-                            continue;
-                        }
-
-                        $model = $modelClass::findOne(['id' => $id]);
-
-                        if(!$model){
-                            continue;
-                        }
-
-                    }
-
-                    if (is_string($this->indexBy)) {
-                        $key = $model->{$this->indexBy};
-                    } else {
-                        $key = call_user_func($this->indexBy, $model);
-                    }
-
-                    $models[$key] = $model;
+                if(is_numeric($row)){
+                    $row = ['_id' => $row];
                 }
+
+                // Fill attributes from _source
+                $modelClass::populateRecord($model, $row);
+
+                // We haven`t all model`s attributes
+                if(count($model->attributes) <> count($row)) {
+
+                    // If exists use special elasticserch field
+                    if(!empty($row['_id'])){
+                        $id = $row['_id'];
+                    } elseif(!empty($row[$this->indexBy])) {
+                        $id = $row[$this->indexBy];
+                    } else {
+                        continue;
+                    }
+
+                    $model = $modelClass::findOne(['id' => $id]);
+
+                    if(!$model){
+                        continue;
+                    }
+
+                }
+
+                if (is_string($this->indexBy)) {
+                    $key = $model->{$this->indexBy};
+                } else {
+                    $key = call_user_func($this->indexBy, $model);
+                }
+
+                $models[$key] = $model;
             }
         }
 
