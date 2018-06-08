@@ -201,6 +201,46 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-min-aggregation.html
+     * @param string $field
+     * @param Aggregation $nestedAgg
+     * @param string $aggName
+     * @param string $filterKey
+     * @return Aggregation
+     */
+    public function min($field, $nestedAgg = null, $aggName = '', $filterKey = 'Min')
+    {
+        if(!$aggName) {
+            $aggName = "{$field}_min_agg";
+        }
+        return new Aggregation(
+            AggQueryHelper::min($field, $aggName),
+            $this->aggGenerator->getSumGenerator($aggName, $filterKey),
+            $nestedAgg
+        );
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-max-aggregation.html
+     * @param string $field
+     * @param Aggregation $nestedAgg
+     * @param string $aggName
+     * @param string $filterKey
+     * @return Aggregation
+     */
+    public function max($field, $nestedAgg = null, $aggName = '', $filterKey = 'Max')
+    {
+        if(!$aggName) {
+            $aggName = "{$field}_max_agg";
+        }
+        return new Aggregation(
+            AggQueryHelper::max($field, $aggName),
+            $this->aggGenerator->getSumGenerator($aggName, $filterKey),
+            $nestedAgg
+        );
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-nested-aggregation.html
      * @param string $path
      * @param array $nestedAgg

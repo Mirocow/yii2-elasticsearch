@@ -118,6 +118,40 @@ class AggQueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-min-aggregation.html
+     * @param string $field
+     * @param string $aggName
+     * @return array
+     */
+    public static function min($field, $aggName = 'min_agg') :array
+    {
+        return [
+            $aggName => [
+                'min' => [
+                    'field' => $field
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-metrics-max-aggregation.html
+     * @param string $field
+     * @param string $aggName
+     * @return array
+     */
+    public static function max($field, $aggName = 'max_agg') :array
+    {
+        return [
+            $aggName => [
+                'max' => [
+                    'field' => $field
+                ]
+            ]
+        ];
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-nested-aggregation.html
      * @param string $path
      * @param string $aggName
