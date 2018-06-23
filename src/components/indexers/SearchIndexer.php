@@ -5,6 +5,7 @@ use mirocow\elasticsearch\contracts\Index;
 use mirocow\elasticsearch\contracts\Indexer;
 use mirocow\elasticsearch\contracts\ProgressLogger;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
+use yii\base\Exception;
 
 final class SearchIndexer implements Indexer
 {
@@ -150,6 +151,7 @@ final class SearchIndexer implements Indexer
 
     /**
      * @param string $indexName
+     * @throws Exception
      * @throws SearchIndexerException
      */
     public function populate(string $indexName = '')
@@ -164,7 +166,14 @@ final class SearchIndexer implements Indexer
 
             $totalSteps = $index->documentCount();
             $step = 1;
-            foreach ($index->documentIds() as $documentId) {
+            foreach ($index->documentIds() as $document) {
+                if(is_array($document) && isset($document['id'])){
+                    $documentId = $document['id'];
+                } elseif(is_numeric($document)) {
+                    $documentId = $document;
+                } else {
+                    throw new Exception('Wrong format index');
+                }
                 $index->addById($documentId);
                 $this->progressLogger->logProgress($totalSteps, $step);
                 $step++;

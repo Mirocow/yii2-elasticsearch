@@ -16,16 +16,14 @@ abstract class AbstractSearchIndex implements Index
     ];
 
     /** @var Client */
-    protected $client;
+    private $client;
 
     /**
      * AbstractSearchIndex constructor.
      */
     public function __construct()
     {
-        $this->client = ClientBuilder::create()
-                                     ->setHosts($this->hosts)
-                                     ->build();
+
     }
 
     /** @inheritdoc */
@@ -45,7 +43,7 @@ abstract class AbstractSearchIndex implements Index
     {
         $exists = true;
         try {
-            $this->client->indices()->get(
+            $this->getClient()->indices()->get(
               [
                 'index' => $this->name()
               ]
@@ -64,7 +62,7 @@ abstract class AbstractSearchIndex implements Index
         }
         try {
             $settings = $this->indexConfig();
-            $this->client->indices()->create($settings);
+            $this->getClient()->indices()->create($settings);
         } catch (ElasticsearchException $e) {
             throw new SearchIndexerException('Error creating '.$this->name(). ' index', $e->getCode(), $e);
         }
@@ -86,7 +84,7 @@ abstract class AbstractSearchIndex implements Index
               'type' => $this->type(),
               'body' => $settings['body']['mappings'][$this->name()],
             ];
-            $this->client->indices()->putMapping($mapping);
+            $this->getClient()->indices()->putMapping($mapping);
         } catch (ElasticsearchException $e) {
             throw new SearchIndexerException('Error upgrading '.$this->name(). ' index', $e->getCode(), $e);
         }
@@ -100,7 +98,7 @@ abstract class AbstractSearchIndex implements Index
         if (!$this->exists()) {
             throw new SearchIndexerException('Index '.$this->name(). ' does not exist');
         }
-        $this->client->indices()->delete(
+        $this->getClient()->indices()->delete(
           [
             'index' => $this->name()
           ]
@@ -113,7 +111,7 @@ abstract class AbstractSearchIndex implements Index
      */
     protected function deleteInternal(int $documentId)
     {
-        $this->client->delete(
+        $this->getClient()->delete(
           [
             'index' => $this->name(),
             'type' => $this->type(),
@@ -139,7 +137,7 @@ abstract class AbstractSearchIndex implements Index
           'id' => $documentId
         ];
 
-        return $this->client->get($query);
+        return $this->getClient()->get($query);
     }
 
     /**
@@ -179,7 +177,7 @@ abstract class AbstractSearchIndex implements Index
         ];
 
         try {
-            $result = $this->client->search($query);
+            $result = $this->getClient()->search($query);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -187,5 +185,19 @@ abstract class AbstractSearchIndex implements Index
         $this->result = $result;
 
         return $this;
+    }
+
+    /**
+     * @return Client
+     */
+    public function getClient()
+    {
+        if (!$this->client) {
+            $this->client = ClientBuilder::create()
+                ->setHosts($this->hosts)
+                ->build();
+        }
+
+        return $this->client;
     }
 }
