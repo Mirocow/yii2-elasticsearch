@@ -8,6 +8,10 @@ use yii\console\Controller;
 
 class ActionRebuild extends ConsoleAction
 {
+    public $skipExists = false;
+
+    public $skipNotExists = false;
+
     /** @var Indexer */
     private $indexer;
 
@@ -32,7 +36,7 @@ class ActionRebuild extends ConsoleAction
     public function run(string $indexName = '')
     {
         try {
-            $this->indexer->rebuild($indexName);
+            $this->indexer->rebuild($indexName, $this->skipExists, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {

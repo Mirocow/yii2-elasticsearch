@@ -13,10 +13,18 @@ class IndexController extends Controller
 {
     public $interactive;
 
+    public $skipExists = false;
+
+    public $skipNotExists = false;
+
     public function options($actionID)
     {
         // $actionId might be used in subclasses to provide options specific to action id
-        return ['interactive'];
+        return [
+            'interactive',
+            'skipExists',
+            'skipNotExists',
+        ];
     }
 
     public function beforeAction($action)
@@ -25,6 +33,12 @@ class IndexController extends Controller
         $logger = \Yii::$container->get(ProgressLogger::class);
 
         $logger->interactive = $this->interactive;
+
+        foreach ($this->options($action->id) as $option){
+            if(isset($action->{$option})){
+                $action->{$option} = $this->{$option};
+            }
+        }
 
         return parent::beforeAction($action);
     }

@@ -55,10 +55,13 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /** @inheritdoc */
-    public function create()
+    public function create($skipExists = false)
     {
         if ($this->exists()) {
-            throw new SearchIndexerException('Index '.$this->name(). ' already exists');
+            if(!$skipExists) {
+                throw new SearchIndexerException('Index ' . $this->name() . ' already exists');
+            }
+            return;
         }
         try {
             $settings = $this->indexConfig();
@@ -69,10 +72,13 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /** @inheritdoc */
-    public function upgrade()
+    public function upgrade($skipNotExists = false)
     {
         if (!$this->exists()) {
-            throw new SearchIndexerException('Index '.$this->name(). ' not found');
+            if(!$skipNotExists) {
+                throw new SearchIndexerException('Index ' . $this->name() . ' not found');
+            }
+            return;
         }
         try {
             $settings = $this->indexConfig();
@@ -93,10 +99,13 @@ abstract class AbstractSearchIndex implements Index
     /**
      * @throws SearchIndexerException
      */
-    public function destroy()
+    public function destroy($skipNotExists = false)
     {
         if (!$this->exists()) {
-            throw new SearchIndexerException('Index '.$this->name(). ' does not exist');
+            if(!$skipNotExists) {
+                throw new SearchIndexerException('Index ' . $this->name() . ' does not exist');
+            }
+            return;
         }
         $this->getClient()->indices()->delete(
           [

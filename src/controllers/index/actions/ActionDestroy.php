@@ -8,6 +8,8 @@ use yii\console\Controller;
 
 class ActionDestroy extends ConsoleAction
 {
+    public $skipNotExists = false;
+
     /** @var Indexer */
     private $indexer;
 
@@ -35,7 +37,7 @@ class ActionDestroy extends ConsoleAction
     public function run(string $indexName = '')
     {
         try {
-            $this->indexer->destroyIndex($indexName);
+            $this->indexer->destroyIndex($indexName, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {

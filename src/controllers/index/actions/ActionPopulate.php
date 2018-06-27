@@ -8,6 +8,8 @@ use yii\console\Controller;
 
 class ActionPopulate extends ConsoleAction
 {
+    public $skipNotExists = false;
+
     /** @var Indexer */
     private $indexer;
 
@@ -35,7 +37,7 @@ class ActionPopulate extends ConsoleAction
     public function run(string $indexName = '')
     {
         try {
-            $this->indexer->populate($indexName);
+            $this->indexer->populate($indexName, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {

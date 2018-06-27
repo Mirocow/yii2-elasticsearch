@@ -78,13 +78,14 @@ final class SearchIndexer implements Indexer
 
     /**
      * @param string $indexName
+     * @param bool $skipExists
      * @throws SearchIndexerException
      */
-    public function createIndex(string $indexName = '')
+    public function createIndex(string $indexName = '', $skipExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
             $this->progressLogger->logMessage('Creating index: ' . $index->name());
-            $index->create();
+            $index->create($skipExists);
         }
 
     }
@@ -93,11 +94,11 @@ final class SearchIndexer implements Indexer
      * @param string $indexName
      * @throws SearchIndexerException
      */
-    public function destroyIndex(string $indexName = '')
+    public function destroyIndex(string $indexName = '', $skipNotExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
             $this->progressLogger->logMessage('Destroying index: ' . $index->name());
-            $index->destroy();
+            $index->destroy($skipNotExists);
         }
     }
 
@@ -105,11 +106,11 @@ final class SearchIndexer implements Indexer
      * @param string $indexName
      * @throws SearchIndexerException
      */
-    public function upgradeIndex(string $indexName = '')
+    public function upgradeIndex(string $indexName = '', $skipNotExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
             $this->progressLogger->logMessage('Upgrade index: ' . $index->name());
-            $index->upgrade();
+            $index->upgrade($skipNotExists);
         }
     }
 
@@ -154,12 +155,16 @@ final class SearchIndexer implements Indexer
      * @throws Exception
      * @throws SearchIndexerException
      */
-    public function populate(string $indexName = '')
+    public function populate(string $indexName = '', $skipNotExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
 
             if (!$index->exists()) {
-                throw new SearchIndexerException('Index ' . $indexName . ' is not initialized');
+                if($skipNotExists) {
+                    throw new SearchIndexerException('Index ' . $indexName . ' is not initialized');
+                }
+
+                return;
             }
 
             $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name());
@@ -186,11 +191,11 @@ final class SearchIndexer implements Indexer
      * @param string $indexName
      * @throws SearchIndexerException
      */
-    public function rebuild(string $indexName = '')
+    public function rebuild(string $indexName = '', $skipExists = false, $skipNotExists = false)
     {
-        $this->destroyIndex($indexName);
-        $this->createIndex($indexName);
-        $this->populate($indexName);
+        $this->destroyIndex($indexName, $skipNotExists);
+        $this->createIndex($indexName, $skipExists);
+        $this->populate($indexName, $skipNotExists);
     }
 
 }

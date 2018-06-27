@@ -8,6 +8,8 @@ use yii\console\Controller;
 
 class ActionUpgrade extends ConsoleAction
 {
+    public $skipNotExists = false;
+
     /** @var Indexer */
     private $indexer;
 
@@ -32,7 +34,7 @@ class ActionUpgrade extends ConsoleAction
     public function run(string $indexName = '')
     {
         try {
-            $this->indexer->upgradeIndexes($indexName);
+            $this->indexer->upgradeIndexes($indexName, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {
