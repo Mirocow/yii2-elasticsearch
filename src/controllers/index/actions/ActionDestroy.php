@@ -31,7 +31,7 @@ class ActionDestroy extends ConsoleAction
     }
 
     /**
-     * @inheritdoc
+     * Destroy index/indexes
      * @param string $indexName
      */
     public function run(string $indexName = '')

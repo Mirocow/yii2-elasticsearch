@@ -115,30 +115,32 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
-     * @param int $documentId
-     * @return void
-     */
-    protected function deleteInternal(int $documentId)
-    {
-        $this->getClient()->delete(
-          [
-            'index' => $this->name(),
-            'type' => $this->type(),
-            'id' => $documentId
-          ]
-        );
-    }
-
-    /**
      * @return array
      */
     abstract protected function indexConfig() :array;
 
     /**
      * @param int $documentId
+     * @param $document
+     */
+    public function index(int $documentId, $document)
+    {
+        $query = [
+            'index' => $this->name(),
+            'type' => $this->type(),
+            'id' => $documentId,
+            'body' => $document,
+        ];
+
+        return $this->getClient()->index($query);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-get.html
+     * @param int $documentId
      * @return array
      */
-    public function getDocument(int $documentId)
+    public function getById(int $documentId)
     {
         $query = [
           'index' => $this->name(),
@@ -147,6 +149,42 @@ abstract class AbstractSearchIndex implements Index
         ];
 
         return $this->getClient()->get($query);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-delete.html
+     * @param int $documentId
+     * @return void
+     */
+    public function removeById(int $documentId)
+    {
+        $query = [
+            'index' => $this->name(),
+            'type' => $this->type(),
+            'id' => $documentId
+        ];
+
+        $this->getClient()->delete($query);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-update.html
+     * @param int $documentId
+     * @param $document
+     * @param string $type doc, script
+     */
+    public function updateById(int $documentId, $document, $type = 'doc')
+    {
+        $query = [
+            'index' => $this->name(),
+            'type' => $this->type(),
+            'id' => $documentId,
+            'body' => [
+                $type => $document
+            ],
+        ];
+
+        return $this->getClient()->update($query);
     }
 
     /**

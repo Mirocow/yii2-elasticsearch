@@ -15,7 +15,7 @@ class IndexerFactory
     /**
      * @return Indexer
      */
-    public static function create() :Indexer
+    public static function getInstance() :Indexer
     {
         /** @var ProgressLogger $logger */
         $logger = Yii::$container->get(ProgressLogger::class);

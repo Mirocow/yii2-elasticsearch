@@ -17,7 +17,7 @@ class Bootstrap implements BootstrapInterface
     {
         Yii::$container->setSingletons([
             ProgressLogger::class => ConsoleProgressLogger::class,
-            Indexer::class => [[IndexerFactory::class, 'create'], []]
+            Indexer::class => [[IndexerFactory::class, 'getInstance'], []]
         ]);
     }
 }

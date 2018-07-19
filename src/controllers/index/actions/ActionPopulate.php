@@ -31,7 +31,7 @@ class ActionPopulate extends ConsoleAction
     }
 
     /**
-     * @inheritdoc
+     * Add documents into index/indexes
      * @param string $indexName
      */
     public function run(string $indexName = '')

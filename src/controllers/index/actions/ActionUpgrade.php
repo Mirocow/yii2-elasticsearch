@@ -30,7 +30,10 @@ class ActionUpgrade extends ConsoleAction
         parent::__construct($id, $controller, $config);
     }
 
-    /** @inheritdoc */
+    /**
+     * Update documents
+     * @param string $indexName
+     */
     public function run(string $indexName = '')
     {
         try {

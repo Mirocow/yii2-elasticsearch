@@ -46,33 +46,6 @@ interface Index
     public function documentCount();
 
     /**
-     * Добавляет документ в индекс
-     *
-     * @param mixed $document
-     * @throws SearchIndexerException
-     * @return void
-     */
-    public function add($document) ;
-
-    /**
-     * Добавляет документ в индекс по его идентификатору
-     *
-     * @param int $documentId
-     * @throws SearchIndexerException
-     * @return void
-     */
-    public function addById(int $documentId) ;
-
-    /**
-     * Удаляет документ из индекса
-     *
-     * @param mixed $document
-     * @throws SearchIndexerException
-     * @return void
-     */
-    public function remove($document) ;
-
-    /**
      * Определяет инициализирован индекс или нет
      *
      * @return bool

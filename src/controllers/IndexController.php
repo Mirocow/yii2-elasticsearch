@@ -1,5 +1,5 @@
 <?php
-namespace mirocow\elasticsearch\controllers\index;
+namespace mirocow\elasticsearch\controllers;
 
 use mirocow\elasticsearch\contracts\ProgressLogger;
 use mirocow\elasticsearch\controllers\index\actions\ActionCreate;
@@ -44,10 +44,6 @@ class IndexController extends Controller
     }
 
     /**
-     * php ./yii elasticsearch/index/create es_index_products
-     * php ./yii elasticsearch/index/populate es_index_products
-     * php ./yii elasticsearch/index/upgrade es_index_products
-     * php ./yii elasticsearch/index/destroy es_index_products
      * @return array
      */
     public function actions() :array
@@ -55,9 +51,12 @@ class IndexController extends Controller
         return [
             'create' => ActionCreate::class,
             'populate' => ActionPopulate::class,
+            'index' => ActionPopulate::class,
             'destroy' => ActionDestroy::class,
             'rebuild' => ActionRebuild::class,
-            'upgrade' => ActionUpgrade::class
+            'reindex' => ActionRebuild::class,
+            'upgrade' => ActionUpgrade::class,
+            'update' => ActionUpgrade::class
         ];
     }
 }

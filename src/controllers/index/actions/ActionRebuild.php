@@ -32,7 +32,10 @@ class ActionRebuild extends ConsoleAction
         parent::__construct($id, $controller, $config);
     }
 
-    /** @inheritdoc */
+    /**
+     * Rebuild index/indexes
+     * @param string $indexName
+     */
     public function run(string $indexName = '')
     {
         try {

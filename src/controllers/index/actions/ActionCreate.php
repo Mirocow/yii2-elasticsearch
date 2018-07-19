@@ -31,7 +31,7 @@ class ActionCreate extends ConsoleAction
     }
 
     /**
-     * @inheritdoc
+     * Create index/indexes
      * @param string $indexName
      */
     public function run(string $indexName = '')
