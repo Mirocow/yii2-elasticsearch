@@ -140,7 +140,7 @@ abstract class AbstractSearchIndex implements Index
      * @param int $documentId
      * @return array
      */
-    public function getById(int $documentId)
+    public function getById(int $documentId, $onlySource = true)
     {
         $query = [
           'index' => $this->name(),
@@ -148,7 +148,13 @@ abstract class AbstractSearchIndex implements Index
           'id' => $documentId
         ];
 
-        return $this->getClient()->get($query);
+        $client = $this->getClient();
+
+        if($onlySource){
+            return $client->getSource($query);
+        }
+
+        return $client->get($query);
     }
 
     /**
