@@ -1,6 +1,7 @@
 <?php
 namespace mirocow\elasticsearch\components\queries;
 
+use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
 use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
 use yii\helpers\ArrayHelper;
 
@@ -153,11 +154,15 @@ class QueryBuilder
     }
 
     /**
-     * @param array $aggregations
+     * @param AggregationMulti|array $aggregations
      * @return $this
      */
-    public function aggregations(array $aggregations = [])
+    public function aggregations($aggregations)
     {
+        if($aggregations instanceof AggregationMulti){
+            $aggregations = $aggregations->generateQuery();
+        }
+
         $this->aggs = $aggregations;
 
         return $this;

@@ -47,7 +47,7 @@ class IndexerFactory
      * @return Index
      * @throws Exception
      */
-    public static function createIndex($className , $indexConfig = [])
+    public static function createIndex($className, $indexConfig = [])
     {
         $module = Yii::$app->getModule(Module::MODULE_NAME);
 
