@@ -130,14 +130,21 @@ class QueryBuilder
 
     /**
      * @param int $size
+     * @return $this
+     */
+    public function limit(int $size = 10000)
+    {
+        $this->size = $size;
+        return $this;
+    }
+
+    /**
      * @param int $from
      * @return $this
      */
-    public function limit(int $size = 10000, int $from = 0)
+    public function offset(int $from = 0)
     {
         $this->from = $from;
-        $this->size = $size;
-
         return $this;
     }
 
