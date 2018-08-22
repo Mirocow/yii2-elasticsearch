@@ -6,7 +6,8 @@ use yii\helpers\ArrayHelper;
 class QueryHelper
 {
     /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
+     * @example QueryHelper::bool(QueryHelper::match(), QueryHelper::match(), QueryHelper::match(), QueryHelper::match())
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-filter-context.html
      * @param array $filterQueries
      * @param array $mustQueries
      * @param array $shouldQueries
@@ -32,42 +33,47 @@ class QueryHelper
     }
 
     /**
+     * @example QueryHelper::filter(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html#_scoring_with_literal_bool_filter_literal
-     * @param $filterQueries
+     * @param $matchQueries
      * @return array
      */
-    public static function filter($filterQueries) :array
+    public static function filter($matchQueries) :array
     {
-        return self::bool($filterQueries);
+        return self::bool($matchQueries);
     }
 
     /**
-     * @param $mustQueries
-     * @return array
-     */
-    public static function must($mustQueries) :array
-    {
-        return self::bool([], $mustQueries);
-    }
-
-    /**
+     * @example QueryHelper::must(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param $shouldQueries
+     * @param $matchQueries
      * @return array
      */
-    public static function should($shouldQueries) :array
+    public static function must($matchQueries) :array
     {
-        return self::bool([], [], $shouldQueries);
+        return self::bool([], $matchQueries);
     }
 
     /**
+     * @example QueryHelper::should(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param $mustNotQueries
+     * @param $matchQueries
      * @return array
      */
-    public static function mustNot($mustNotQueries) :array
+    public static function should($matchQueries) :array
     {
-        return self::bool([], [], [], $mustNotQueries);
+        return self::bool([], [], $matchQueries);
+    }
+
+    /**
+     * @example QueryHelper::mustNot(QueryHelper::match())
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
+     * @param $matchQueries
+     * @return array
+     */
+    public static function mustNot($matchQueries) :array
+    {
+        return self::bool([], [], [], $matchQueries);
     }
 
     /**

@@ -5,6 +5,8 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
+use mirocow\elasticsearch\components\queries\QueryBuilder;
 use mirocow\elasticsearch\contracts\Index;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use yii\helpers\ArrayHelper;
@@ -120,10 +122,20 @@ abstract class AbstractSearchIndex implements Index
     abstract protected function indexConfig() :array;
 
     /**
+     * @deprecated
      * @param int $documentId
      * @param $document
      */
     public function index(int $documentId, $document)
+    {
+        $this->documentCreate($documentId, $document);
+    }
+
+    /**
+     * @param int $documentId
+     * @param $document
+     */
+    public function documentCreate(int $documentId, $document)
     {
         $query = [
             'index' => $this->name(),
@@ -136,16 +148,26 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
+     * @deprecated
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-get.html
      * @param int $documentId
      * @return array
      */
     public function getById(int $documentId, $onlySource = true)
     {
+        return $this->documentGetById($documentId, $onlySource);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-get.html
+     * @param int $documentId
+     * @return array
+     */
+    public function documentGetById(int $documentId, $onlySource = true){
         $query = [
-          'index' => $this->name(),
-          'type' => $this->type(),
-          'id' => $documentId
+            'index' => $this->name(),
+            'type' => $this->type(),
+            'id' => $documentId
         ];
 
         $client = $this->getClient();
@@ -158,11 +180,39 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-exists-query.html
+     * @param int $documentId
+     * @param $document
+     * @param string $type doc, script
+     */
+    public function documentExists(int $documentId)
+    {
+        $query = [
+            'index' => $this->name(),
+            'type' => $this->type(),
+            'id' => $documentId,
+        ];
+
+        return $this->getClient()->exists($query);
+    }
+
+    /**
+     * @deprecated
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-delete.html
      * @param int $documentId
      * @return void
      */
     public function removeById(int $documentId)
+    {
+        $this->documentRemoveById($documentId);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-delete.html
+     * @param int $documentId
+     * @return void
+     */
+    public function documentRemoveById(int $documentId)
     {
         $query = [
             'index' => $this->name(),
@@ -174,12 +224,24 @@ abstract class AbstractSearchIndex implements Index
     }
 
     /**
+     * @deprecated
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-update.html
      * @param int $documentId
      * @param $document
      * @param string $type doc, script
      */
     public function updateById(int $documentId, $document, $type = 'doc')
+    {
+        return $this->documentUpdateById($documentId, $document, $type);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-update.html
+     * @param int $documentId
+     * @param $document
+     * @param string $type doc, script
+     */
+    public function documentUpdateById(int $documentId, $document, $type = 'doc')
     {
         $query = [
             'index' => $this->name(),
@@ -202,7 +264,9 @@ abstract class AbstractSearchIndex implements Index
     public function result($arrayPath = '')
     {
         if(empty($this->result['hits']['hits'])){
-            return [];
+            if(empty($this->result['aggregations'])) {
+                return [];
+            }
         }
 
         if($arrayPath) {
@@ -215,12 +279,17 @@ abstract class AbstractSearchIndex implements Index
     /**
      * Execute query DSL
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl.html
-     * @param array $query
+     * @param QueryBuilder|array $query
      * @return $this
      * @throws \Exception
      */
     public function search($query = [])
     {
+        if($query instanceof QueryBuilder){
+            /** @var QueryBuilder $query */
+            $query = $query->generateQuery();
+        }
+
         $query = [
             'index' => $this->name(),
             // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html

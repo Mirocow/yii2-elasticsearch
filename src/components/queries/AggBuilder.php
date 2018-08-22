@@ -15,6 +15,11 @@ use mirocow\elasticsearch\components\queries\Aggregation\Generator\DefaultAggGen
  */
 class AggBuilder
 {
+    /**
+     * @var int
+     */
+    private $size = 10000;
+
     /** @var AggGeneratorInterface */
     protected $aggGenerator;
 
@@ -24,6 +29,17 @@ class AggBuilder
             $aggGenerator = new DefaultAggGenerator();
         }
         $this->aggGenerator = $aggGenerator;
+    }
+
+    /**
+     * @param int $size
+     * @return $this
+     */
+    public function limit(int $size = 100)
+    {
+        $this->size = $size;
+
+        return $this;
     }
 
     /**
@@ -69,6 +85,7 @@ class AggBuilder
 
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-terms-aggregation.html
+     * @see https://github.com/elastic/elasticsearch/edit/5.6/docs/reference/aggregations/bucket/terms-aggregation.asciidoc
      * @param string $field
      * @param array $termsOptions
      * @param Aggregation $nestedAgg
@@ -79,6 +96,9 @@ class AggBuilder
     {
         if(!$aggName) {
             $aggName = "{$field}_terms_agg";
+        }
+        if(!isset($termsOptions['size'])){
+            $termsOptions['size'] = $this->size;
         }
         return new Aggregation(
             AggQueryHelper::terms($field, $termsOptions, $aggName),

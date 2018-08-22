@@ -50,7 +50,7 @@ class QueryBuilder
     /**
      * @var int
      */
-    private $size = 10;
+    private $size = 10000;
 
     /**
      * @var array
@@ -133,7 +133,7 @@ class QueryBuilder
      * @param int $from
      * @return $this
      */
-    public function limit(int $size = 0, int $from = 0)
+    public function limit(int $size = 10000, int $from = 0)
     {
         $this->from = $from;
         $this->size = $size;
@@ -233,20 +233,21 @@ class QueryBuilder
             'highlight', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
             'sort', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
             '_source', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
-            'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
-            'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
-            'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
-            'rescore', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-rescore.html
-            'explain', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-explain.html
-            'min_score', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
-            'collapse', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-collapse.html
+            //'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
+            //'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
+            //'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
+            //'rescore', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-rescore.html
+            //'explain', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-explain.html
+            //'min_score', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
+            //'collapse', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-collapse.html
 
         ];
 
         foreach ($fields as $param) {
-            if (!empty($this->{$param})) {
-                $this->body[ $param ] = $this->{$param};
+            if(is_array($this->{$param}) && empty($this->{$param})){
+                continue;
             }
+            $this->body[$param] = $this->{$param};
         }
 
         /**
