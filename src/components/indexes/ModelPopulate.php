@@ -20,7 +20,18 @@ class ModelPopulate
 
     public function __construct(array &$result = [])
     {
+        $this->setResult($result);
+    }
+
+    /**
+     * @param array $result
+     * @return $this
+     */
+    public function setResult(array &$result = [])
+    {
         $this->result = $result;
+
+        return $this;
     }
 
     /**

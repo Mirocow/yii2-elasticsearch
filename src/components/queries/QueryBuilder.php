@@ -4,16 +4,21 @@ namespace mirocow\elasticsearch\components\queries;
 use mirocow\elasticsearch\components\queries\Aggregation\Aggregation;
 use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
 use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
+use mirocow\elasticsearch\exceptions\SearchQueryException;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 class QueryBuilder
 {
-    protected $query = null;
+    /**
+     * @var null
+     */
+    private $query = null;
 
     /**
      * @var array
      */
-    public $body = [];
+    private $body = [];
 
     /**
      * Can accept parameters:
@@ -28,9 +33,9 @@ class QueryBuilder
     private $filter = [];
 
     /**
-     * @var array
+     * @var Aggregation|AggregationMulti
      */
-    private $aggs = [];
+    public $aggs = [];
 
     /**
      * @var array
@@ -91,7 +96,6 @@ class QueryBuilder
     {
         $this->init();
         ArrayHelper::setValue($this->query, $key, $value);
-
         return $this;
     }
 
@@ -113,7 +117,6 @@ class QueryBuilder
     {
         $this->init();
         $this->query = ArrayHelper::merge($this->query, $value);
-
         return $this;
     }
 
@@ -124,7 +127,6 @@ class QueryBuilder
     public function query($query = '')
     {
         $this->query = QueryHelper::query($query);
-
         return $this;
     }
 
@@ -157,26 +159,16 @@ class QueryBuilder
         if($fieldsName) {
             $this->sort = $fieldsName;
         }
-
         return $this;
     }
 
     /**
-     * @param Aggregation|AggregationMulti|array $aggregations
+     * @param Aggregation|AggregationMulti $aggregations
      * @return $this
      */
     public function aggregations($aggregations)
     {
-        if($aggregations instanceof Aggregation){
-            $aggregations = $aggregations->generateQuery();
-        }
-
-        if($aggregations instanceof AggregationMulti){
-            $aggregations = $aggregations->generateQuery();
-        }
-
         $this->aggs = $aggregations;
-
         return $this;
     }
 
@@ -187,7 +179,6 @@ class QueryBuilder
     public function highlight(array $highlight = [])
     {
         $this->highlight = $highlight;
-
         return $this;
     }
 
@@ -198,7 +189,6 @@ class QueryBuilder
     public function source(array $source = [])
     {
         $this->_source = $source;
-
         return $this;
     }
 
@@ -209,7 +199,6 @@ class QueryBuilder
     public function filter(array $filter = [])
     {
         $this->filter = $filter;
-
         return $this;
     }
 
@@ -219,8 +208,87 @@ class QueryBuilder
     public function withSource($data = '*')
     {
         $this->withSource = $data;
-
         return $this;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareFilter()
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareFrom()
+    {
+        return $this->from;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareSize()
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function prepareAggs()
+    {
+        if(is_array($this->aggs) && $this->aggs){
+            throw new SearchQueryException('must be an instance of a class e.g. \mirocow\elasticsearch\components\queries\Aggregation\Aggregation or \mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti or its subclasses.');
+        }
+
+        if($this->aggs instanceof Aggregation){
+            $aggregations = $this->aggs->generateQuery();
+        }
+
+        if($this->aggs instanceof AggregationMulti){
+            $aggregations = $this->aggs->generateQuery();
+        }
+
+        if(!isset($aggregations)){
+            return [];
+        }
+
+        return $aggregations;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareHighlight()
+    {
+        return $this->highlight;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareSort()
+    {
+        return $this->sort;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareSource()
+    {
+        return $this->_source;
     }
 
     /**
@@ -239,7 +307,7 @@ class QueryBuilder
             'aggs', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
             'highlight', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
             'sort', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
-            '_source', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
+            'source', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
             //'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
             //'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
             //'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
@@ -250,11 +318,10 @@ class QueryBuilder
 
         ];
 
-        foreach ($fields as $param) {
-            if(is_array($this->{$param}) && empty($this->{$param})){
-                continue;
+        foreach ($fields as $field) {
+            if($partQuery = call_user_func_array([$this, 'prepare' . ucwords($field)], [])) {
+                $this->body[$field] = $partQuery;
             }
-            $this->body[$param] = $this->{$param};
         }
 
         /**
