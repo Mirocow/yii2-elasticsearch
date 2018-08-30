@@ -7,6 +7,7 @@ use mirocow\elasticsearch\components\queries\Aggregation\Aggregation;
 use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
 use mirocow\elasticsearch\contracts\Index;
 use yii\data\BaseDataProvider;
+use yii\helpers\ArrayHelper;
 
 class SearchDataProvider extends BaseDataProvider
 {
@@ -35,7 +36,7 @@ class SearchDataProvider extends BaseDataProvider
     /**
      * @var array|null
      */
-    private $aggregations = null;
+    private $aggregations = [];
 
     /**
      * @var array
@@ -114,9 +115,6 @@ class SearchDataProvider extends BaseDataProvider
         return $response['hits']['total'];
     }
 
-    /**
-     *
-     */
     protected function prepareAggregations()
     {
         $this->prepare();
@@ -124,7 +122,7 @@ class SearchDataProvider extends BaseDataProvider
         if(!empty($this->response['aggregations'])) {
             /** @var Aggregation|AggregationMulti $aggs */
             if($aggs = $this->query->aggs) {
-                $this->aggregations = $aggs->generateResults($this->response['aggregations']);
+                $this->setAggregations($aggs->generateResults($this->response['aggregations']));
             }
         }
     }
@@ -134,7 +132,7 @@ class SearchDataProvider extends BaseDataProvider
      */
     public function setAggregations($aggregations = [])
     {
-        $this->aggregations = $aggregations;
+        $this->aggregations = ArrayHelper::merge($this->aggregations, $aggregations);
     }
 
     /**
@@ -142,9 +140,7 @@ class SearchDataProvider extends BaseDataProvider
      */
     public function getAggregations()
     {
-        if($this->aggregations == null){
-            $this->prepareAggregations();
-        }
+        $this->prepareAggregations();
 
         return $this->aggregations;
     }
