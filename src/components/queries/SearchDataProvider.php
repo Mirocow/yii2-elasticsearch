@@ -132,7 +132,9 @@ class SearchDataProvider extends BaseDataProvider
      */
     public function setAggregations($aggregations = [])
     {
-        $this->aggregations = ArrayHelper::merge($this->aggregations, $aggregations);
+        if($aggregations) {
+            $this->aggregations = ArrayHelper::merge($this->aggregations, $aggregations);
+        }
     }
 
     /**
