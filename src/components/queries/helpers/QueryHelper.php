@@ -245,6 +245,44 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-dis-max-query.html
+     * @param array $queries
+     * @param array $options
+     * @return object
+     */
+    public static function disMax($queries = [], $options = []) :\stdClass
+    {
+        $query = [
+            'queries' => $queries,
+        ];
+
+        $query = ArrayHelper::merge($query, $options);
+
+        return (object) [
+            'dis_max' => $query,
+        ];
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-function-score-query.html
+     * @param array $queries
+     * @param array $options
+     * @return object
+     */
+    public static function functionScore($query = [], $options = []) :\stdClass
+    {
+        $query = [
+            'query' => $queries,
+        ];
+
+        $query = ArrayHelper::merge($query, $options);
+
+        return (object) [
+            'function_score' => $query,
+        ];
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-date-format.html
      * @param $format
      * @return object

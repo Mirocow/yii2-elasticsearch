@@ -48,7 +48,6 @@ class SearchDataProvider extends BaseDataProvider
      */
     protected function prepareModels()
     {
-
         if (!$this->query instanceof QueryBuilder) {
             throw new InvalidConfigException('The "query" property must be an instance of a class \mirocow\elasticsearch\components\queries\QueryBuilder or its subclasses.');
         }
@@ -160,6 +159,10 @@ class SearchDataProvider extends BaseDataProvider
      */
     public function getSort()
     {
+        if(!$this->sort){
+            $this->sort = ['_score' => SORT_DESC];
+        }
+
         return $this->sort;
     }
 }

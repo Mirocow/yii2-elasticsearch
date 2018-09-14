@@ -88,19 +88,21 @@ class QueryBuilder
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      * @return $this
      */
     public function set($key, $value)
     {
         $this->init();
-        ArrayHelper::setValue($this->query, $key, $value);
+        if($value) {
+            ArrayHelper::setValue($this->query, $key, $value);
+        }
         return $this;
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return mixed
      */
     public function get($key)
@@ -116,7 +118,9 @@ class QueryBuilder
     public function add($value)
     {
         $this->init();
-        $this->query = ArrayHelper::merge($this->query, $value);
+        if($value) {
+            $this->query = ArrayHelper::merge($this->query, $value);
+        }
         return $this;
     }
 
@@ -126,7 +130,9 @@ class QueryBuilder
      */
     public function query($query = '')
     {
-        $this->query = QueryHelper::query($query);
+        if($query) {
+            $this->query = QueryHelper::query($query);
+        }
         return $this;
     }
 
@@ -168,7 +174,9 @@ class QueryBuilder
      */
     public function aggregations($aggregations)
     {
-        $this->aggs = $aggregations;
+        if($aggregations) {
+            $this->aggs = $aggregations;
+        }
         return $this;
     }
 
@@ -341,4 +349,5 @@ class QueryBuilder
 
         return $this->body;
     }
+
 }
