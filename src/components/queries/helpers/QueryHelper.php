@@ -207,6 +207,34 @@ class QueryHelper
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
+     * @param $field
+     * @param $match
+     * @param string $type
+     *      match - queries accept text/numerics/dates, analyzes them, and constructs a query.
+     *      match_phrase - The match_phrase query analyzes the text and creates a phrase query out of the analyzed text.
+     *      match_phrase_prefix - The match_phrase_prefix is the same as match_phrase, except that it allows for prefix matches on the last term in the text.
+     *      multi_match - @see self::multiMatch()
+     *      common - @see self::common()
+     *      simple_query_string - A query that uses the SimpleQueryParser to parse its context.
+     *                            Unlike the regular query_string query, the simple_query_string query will never throw an exception, and discards invalid parts of the query.
+     * @param string $searchQuery
+     * @return object
+     */
+    public static function match($field, $match, $type = 'match', $searchQuery = []) :\stdClass
+    {
+        $query = [
+            $field => $match,
+        ];
+
+        $searchQuery = ArrayHelper::merge($query, $searchQuery);
+
+        return (object) [
+            $type => $searchQuery
+        ];
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-multi-match-query.html
      * @param array $fields
      * @param string $query
@@ -216,52 +244,84 @@ class QueryHelper
      *    cross_fields - Treats fields with the same analyzer as though they were one big field. Looks for each word in any field. See cross_fields.
      *    phrase - Runs a [[match_phrase]] query on each field and combines the _score from each field. See phrase and phrase_prefix.
      *    phrase_prefix - Runs a [[match_phrase_prefix]] query on each field and combines the _score from each field. See phrase and phrase_prefix.
+     * @param string $searchQuery
      * @return object
      */
     public static function multiMatch($fields, $query, $type = 'phrase', $searchQuery = []) :\stdClass
     {
+        return self::match('query', $query,'multi_match', ['fields' => $fields, 'type' => $type]);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-common-terms-query.html
+     * @param $query
+     * @param array $searchQuery
+     * @return \stdClass
+     */
+    public static function common($query, $searchQuery = []) :\stdClass
+    {
         $query = [
             'query' => $query,
-            'fields' => $fields,
-            'type' => $type,
         ];
 
-        $searchQuery = ArrayHelper::merge($query, $searchQuery);
+        $body = ArrayHelper::merge($body, $searchQuery);
 
         return (object) [
-            'multi_match' => $searchQuery
+            'common' => [
+                'body' => $body,
+            ]
         ];
     }
 
     /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
-     * @param $field
-     * @param $match
-     * @param string $type
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-all-query.html
+     * @param string $query
      * @return object
      */
-    public static function match($field, $match, $type = 'match') :\stdClass
+    public static function query($query = '')
     {
+        return empty($query) ? ["match_all" => (object) []] : $query;
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html
+     * @param string $query
+     * @param string $default_field
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html#_default_field
+     *
+     * @param array $searchQuery
+     * @return object
+     */
+    public static function query_string($query = '', $default_field = '_all', $searchQuery = []) :\stdClass
+    {
+        $query = [
+            'query' => $query,
+        ];
+
+        if($default_field){
+            $query['default_field'] = $default_field;
+        }
+
+        $query = ArrayHelper::merge($query, $searchQuery);
+
         return (object) [
-            $type => [
-                $field => $match,
-            ]
+            'query_string' => $query
         ];
     }
 
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-dis-max-query.html
      * @param array $queries
-     * @param array $options
+     * @param array $searchQuery
      * @return object
      */
-    public static function disMax($queries = [], $options = []) :\stdClass
+    public static function disMax($queries = [], $searchQuery = []) :\stdClass
     {
         $query = [
             'queries' => $queries,
         ];
 
-        $query = ArrayHelper::merge($query, $options);
+        $query = ArrayHelper::merge($query, $searchQuery);
 
         return (object) [
             'dis_max' => $query,
@@ -271,16 +331,16 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-function-score-query.html
      * @param array $queries
-     * @param array $options
+     * @param array $searchQuery
      * @return object
      */
-    public static function functionScore($query = [], $options = []) :\stdClass
+    public static function functionScore($query = [], $searchQuery = []) :\stdClass
     {
         $query = [
             'query' => $queries,
         ];
 
-        $query = ArrayHelper::merge($query, $options);
+        $query = ArrayHelper::merge($query, $searchQuery);
 
         return (object) [
             'function_score' => $query,
@@ -309,32 +369,6 @@ class QueryHelper
             'exists' => [
                 'field' => $field,
             ],
-        ];
-    }
-
-    /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-all-query.html
-     * @param string $query
-     * @return object
-     */
-    public static function query($query = '')
-    {
-        return empty($query) ? ["match_all" => (object) []] : $query;
-    }
-
-    /**
-     * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-query-string-query.html
-     * @param string $query
-     * @param string $default_field
-     * @return object
-     */
-    public static function query_string($query = '', $default_field = '_all') :\stdClass
-    {
-        return (object) [
-            'query_string' => [
-                'default_field' => $default_field,
-                'query' => $query,
-            ]
         ];
     }
 
