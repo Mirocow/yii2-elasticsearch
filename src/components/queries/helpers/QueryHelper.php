@@ -211,9 +211,14 @@ class QueryHelper
      * @param array $fields
      * @param string $query
      * @param string $type
+     *    best_fields - (default) Finds documents which match any field, but uses the _score from the best field. See best_fields.
+     *    most_fields - Finds documents which match any field and combines the _score from each field. See most_fields.
+     *    cross_fields - Treats fields with the same analyzer as though they were one big field. Looks for each word in any field. See cross_fields.
+     *    phrase - Runs a [[match_phrase]] query on each field and combines the _score from each field. See phrase and phrase_prefix.
+     *    phrase_prefix - Runs a [[match_phrase_prefix]] query on each field and combines the _score from each field. See phrase and phrase_prefix.
      * @return object
      */
-    public static function multiMatch($fields, $query, $type, $searchQuery = []) :\stdClass
+    public static function multiMatch($fields, $query, $type = 'phrase', $searchQuery = []) :\stdClass
     {
         $query = [
             'query' => $query,
