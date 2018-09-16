@@ -1,25 +1,33 @@
-# Install
+# Установка
 
 ```bash
 $ composer require --prefer-dist mirocow/yii2-elasticsearch
 ```
 
-# Configure
+# Настройки
 
 * создать класс реализующий интерфейс common\modules\elasticsearch\contracts\Index
 * добавить его в настройках модуля индексации в common/config/main.php
 * запустить индексацию
+* Построить запрос используя построители (QueryBuilder - для самого запроса и (AggBuilder и AggregationMulti) для построения агрегации)
+* Воспользоваться помошником QueryHelper, для упрощения построения запроса
+* Для вывода можно воспользоваться ActiveRecod: ModelPopulate или ActiveProvider: SearchDataProvider
 
 ```php
 return [
     'modules' => [
 
-        // elasticsearch
-        common\modules\elasticsearch\Module::MODULE_NAME => [
-          'class' => common\modules\elasticsearch\Module::class,
-          'indexes' => [
-            common\repositories\indexes\ProductsSearchIndex::class
-          ]
+        'elasticsearch' => [
+            'class' => mirocow\elasticsearch\Module::class,
+            'indexes' => [
+                // Содержит инструкции для создания индекса продуктов
+                common\repositories\indexes\ProductIndex::class => [
+                    'class' => common\repositories\indexes\ProductIndex::class,
+                    'index_name' => 'es_index_products',
+                    'index_type' => 'products',
+                ],
+            ],
+            'isDebug' => true,
         ],
 
     ],
@@ -29,7 +37,7 @@ return [
 ];
 ```
 
-# Create index
+# Построитель индекса
 
 Создать пустой индекс
 ```bash
@@ -57,9 +65,160 @@ $ php yii elasticsearch/index/rebuild
 $ export PHP_IDE_CONFIG="serverName=www.skringo.ztc" && export XDEBUG_CONFIG="remote_host=192.168.1.6 idekey=xdebug" && php7.0 ./yii elasticsearch/index/create products_search
 ```
 
-# Query
+## Пример использования
 
-За основу построителя запроса взят https://github.com/crowdskout/es-search-builder
+### QueryHelper: построитель частей запроса
+
+```php
+$terms = QueryHelper::terms('categories.name', 'my category');
+
+$nested[] = QueryHelper::nested('string_facet',
+    QueryHelper::filter([
+        QueryHelper::term('string_facet.facet_name', ['value' => $id, 'boost' => 1]),
+        QueryHelper::term('string_facet.facet_value', ['value' => $value, 'boost' => 1]),
+    ])
+);
+$filter[] = QueryHelper::should($nested);
+
+```
+
+### QueryBuilder: построитель запроса
+
+```php
+use mirocow\elasticsearch\components\queries\QueryBuilder;
+
+class ProductFacets extends ProductIndex
+{
+
+    /**
+     * @param ProductSearch $model
+     * @return QueryBuilder
+     * @throws \Exception
+     */
+    public function getQueryFascetes(ProductSearch $model)
+    {
+
+        $should = [];
+        $must = [];
+        $must_not = [];
+        $filter = [];
+        
+        $_should[] = QueryHelper::multiMatch([
+            'title.ru^10',
+            'title.en^10',
+            'description.ru^20',
+            'description.en^20',
+            'model.name^20',
+            'brand.name^15',
+            'categories.name^10',
+        ], $queryCorrect, 'phrase', ['operator' => 'or', 'boost' => 0.5]);
+        
+        $must[] = QueryHelper::should($_should);
+        
+        /** @var Aggregation $agg */
+        $aggBuilder = new AggBuilder();
+        
+        $aggregations = new AggregationMulti;
+        
+        $terms = QueryHelper::terms('categories.name', 'my category');
+        $must[] = $terms;
+        $agg = $aggBuilder->filter('categories.id', $terms)
+            ->add($aggBuilder->terms('categories.id'));
+        $aggregations->add('categories', $agg);
+        
+        $terms = QueryHelper::terms('brand.name', 'my brand');
+        $must[] = $terms;
+        $agg = $aggBuilder->filter('brand.id', $terms)
+            ->add($aggBuilder->terms('brand.id'));
+        $aggregations->add('brands', $agg);        
+        
+        /** @var QueryBuilder $query */
+        $query = new QueryBuilder;
+        $query = $query
+            ->add(QueryHelper::bool($filter, $must, $should, $must_not))
+            ->aggregations($aggregations)
+            ->withSource('attributes');
+            
+        return $query;    
+    
+   }
+}   
+```
+
+### Model: индексируемая модель
+
+```php
+use mirocow\elasticsearch\components\indexes\ModelPopulate;
+
+final class ProductPopulate extends ModelPopulate implements \mirocow\elasticsearch\contracts\Populate
+{
+    public $modelClass = Product::class;
+}
+```
+
+### SearchDataProvider: вывод с помощью ActiveProvider
+
+```php
+use mirocow\elasticsearch\components\queries\QueryBuilder;
+use mirocow\elasticsearch\components\factories\IndexerFactory;
+use mirocow\elasticsearch\components\queries\SearchDataProvider;
+
+class ProductSearch extends Product
+{
+    public function search ($params, $pageSize = 9)
+    {
+        $this->load($params);
+    
+        /** @var ProductFacets $search */
+        $search = IndexerFactory::createIndex(ProductFacets::class);
+        
+        /** @var QueryBuilder $query */
+        $query = $search->getQueryFascetes($this);
+        
+        $dataProvider = new SearchDataProvider([
+            'modelClass' => (new ProductPopulate())->select('_source.attributes'),
+            'search' => $search,
+            'query' => $query,
+            'sort' => QueryHelper::sortBy(['_score' => SORT_ASC]);,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+    }
+}
+```
+
+### ModelPopulate: вывод с помощью ActiveRecord
+
+```php
+use mirocow\elasticsearch\components\queries\QueryBuilder;
+use mirocow\elasticsearch\components\factories\IndexerFactory;
+
+class ProductSearch extends Product
+{
+    public function search ($params, $pageSize = 9)
+    {
+        $this->load($params);
+        
+        /** @var ProductFacets $search */
+        $search = IndexerFactory::createIndex(ProductFacets::class);
+        
+        /** @var QueryBuilder $query */
+        $query = $search->getQueryFascetes($this);
+        
+        $products = (new ProductPopulate())
+                    ->select('_source.attributes')
+                    ->search($query)
+                    ->result();
+    }
+}
+```
+
+# Документация
+
+* https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html
+* https://discuss.elastic.co/c/in-your-native-tongue/russian
+* https://discuss.elastic.co/c/elasticsearch
 
 # TODO
 
