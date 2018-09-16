@@ -1,11 +1,13 @@
 <?php
-namespace mirocow\elasticsearch\components\queries;
+namespace mirocow\elasticsearch\components\indexes;
 
 use mirocow\elasticsearch\components\indexes\AbstractSearchIndex;
 use mirocow\elasticsearch\components\indexes\ModelPopulate;
 use mirocow\elasticsearch\components\queries\Aggregation\Aggregation;
 use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
-use mirocow\elasticsearch\contracts\Index;
+use mirocow\elasticsearch\components\queries\QueryBuilder;
+use mirocow\elasticsearch\contracts\IndexInterface;
+use yii\base\InvalidConfigException;
 use yii\data\BaseDataProvider;
 use yii\helpers\ArrayHelper;
 
@@ -52,8 +54,8 @@ class SearchDataProvider extends BaseDataProvider
             throw new InvalidConfigException('The "query" property must be an instance of a class \mirocow\elasticsearch\components\queries\QueryBuilder or its subclasses.');
         }
 
-        if (!$this->search instanceof Index) {
-            throw new InvalidConfigException('The "search" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\Index e.g. mirocow\elasticsearch\components\indexes\AbstractSearchIndex or its subclasses.');
+        if (!$this->search instanceof IndexInterface) {
+            throw new InvalidConfigException('The "search" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\IndexInterface e.g. mirocow\elasticsearch\components\indexes\AbstractSearchIndex or its subclasses.');
         }
 
         if (($sort = $this->getSort()) !== false) {
@@ -78,7 +80,7 @@ class SearchDataProvider extends BaseDataProvider
         }
 
         if (!$this->modelClass instanceof ModelPopulate) {
-            throw new InvalidConfigException('The "modelClass" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\Populate e.g. mirocow\elasticsearch\components\indexes\ModelPopulate or its subclasses.');
+            throw new InvalidConfigException('The "modelClass" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\PopulateInterface e.g. mirocow\elasticsearch\components\indexes\ModelPopulate or its subclasses.');
         }
 
         return $this->modelClass->setResult($this->response)->all();

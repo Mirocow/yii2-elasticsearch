@@ -1,10 +1,10 @@
 <?php
 namespace common\modules\elasticsearch\components\loggers;
 
-use common\modules\elasticsearch\contracts\ProgressLogger;
+use common\modules\elasticsearch\contracts\ProgressLoggerInterface;
 use Yii;
 
-final class YiiProgressLogger implements ProgressLogger
+final class YiiProgressLogger implements ProgressLoggerInterface
 {
     /** @inheritdoc */
     public function logMessage($message)

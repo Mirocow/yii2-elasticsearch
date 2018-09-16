@@ -1,9 +1,9 @@
 <?php
 namespace mirocow\elasticsearch\components\factories;
 
-use mirocow\elasticsearch\contracts\Index;
-use mirocow\elasticsearch\contracts\Indexer;
-use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\IndexInterface;
+use mirocow\elasticsearch\contracts\IndexerInterface;
+use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use mirocow\elasticsearch\components\indexers\SearchIndexer;
 use mirocow\elasticsearch\Module;
 use Yii;
@@ -13,12 +13,12 @@ use yii\helpers\ArrayHelper;
 class IndexerFactory
 {
     /**
-     * @return Indexer
+     * @return IndexerInterface
      */
-    public static function getInstance() :Indexer
+    public static function getInstance() :IndexerInterface
     {
-        /** @var ProgressLogger $logger */
-        $logger = Yii::$container->get(ProgressLogger::class);
+        /** @var ProgressLoggerInterface $logger */
+        $logger = Yii::$container->get(ProgressLoggerInterface::class);
 
         $module = Yii::$app->getModule(Module::MODULE_NAME);
 
@@ -34,7 +34,7 @@ class IndexerFactory
             }
             unset($indexConfig['class']);
 
-            /** @var Index $index */
+            /** @var IndexInterface $index */
             $index = self::createIndex($className, $indexConfig);
             $searchIndexer->registerIndex($index);
         }
@@ -44,7 +44,7 @@ class IndexerFactory
 
     /**
      * @param array $indexConfig
-     * @return Index
+     * @return IndexInterface
      * @throws Exception
      */
     public static function createIndex($className, $indexConfig = [])

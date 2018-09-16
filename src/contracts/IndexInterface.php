@@ -4,10 +4,10 @@ namespace mirocow\elasticsearch\contracts;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 /**
- * Interface Index
+ * Interface IndexInterface
  * @package mirocow\elasticsearch\contracts
  */
-interface Index
+interface IndexInterface
 {
     /**
      * Возвращает название индекса

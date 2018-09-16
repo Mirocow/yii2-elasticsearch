@@ -2,10 +2,10 @@
 namespace mirocow\elasticsearch\contracts;
 
 /**
- * Interface ProgressLogger
+ * Interface ProgressLoggerInterface
  * @package mirocow\elasticsearch\contracts
  */
-interface ProgressLogger
+interface ProgressLoggerInterface
 {
     /**
      * Добавить сообщение в лог

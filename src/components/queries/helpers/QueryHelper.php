@@ -249,7 +249,17 @@ class QueryHelper
      */
     public static function multiMatch($fields, $query, $type = 'phrase', $searchQuery = []) :\stdClass
     {
-        return self::match('query', $query,'multi_match', ['fields' => $fields, 'type' => $type]);
+        $query = [
+            'query' => $query,
+            'type' => $type,
+            'fields' => $fields,
+        ];
+
+        $query = ArrayHelper::merge($query, $searchQuery);
+
+        return (object) [
+            'multi_match' => $query,
+        ];
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 namespace mirocow\elasticsearch\controllers\index\actions;
 
-use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\contracts\IndexerInterface;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use mirocow\elasticsearch\console\ConsoleAction;
 use yii\console\Controller;
@@ -12,20 +12,20 @@ class ActionRebuild extends ConsoleAction
 
     public $skipNotExists = false;
 
-    /** @var Indexer */
+    /** @var IndexerInterface */
     private $indexer;
 
     /**
      * ActionRebuild constructor.
      * @param string $id
      * @param Controller $controller
-     * @param Indexer $indexer
+     * @param IndexerInterface $indexer
      * @param array $config
      */
     public function __construct(
         $id,
         Controller $controller,
-        Indexer $indexer,
+        IndexerInterface $indexer,
         array $config = []
     ) {
         $this->indexer = $indexer;

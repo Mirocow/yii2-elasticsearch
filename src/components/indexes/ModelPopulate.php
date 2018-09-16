@@ -1,13 +1,14 @@
 <?php
 namespace mirocow\elasticsearch\components\indexes;
 
+use mirocow\elasticsearch\contracts\PopulateInterface;
 use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
 use yii\db\ActiveRecord;
 use yii\db\ActiveRecordInterface;
 use yii\helpers\ArrayHelper;
 
-class ModelPopulate
+class ModelPopulate implements PopulateInterface
 {
 
     use ActiveQueryTrait;
@@ -24,8 +25,7 @@ class ModelPopulate
     }
 
     /**
-     * @param array $result
-     * @return $this
+     * @inheritdoc
      */
     public function setResult(array &$result = [])
     {
@@ -35,11 +35,7 @@ class ModelPopulate
     }
 
     /**
-     * Converts the raw query results into the format as specified by this query.
-     * This method is internally used to convert the data fetched from database
-     * into the format as required by this query.
-     * @return array the converted query result
-     * @since 2.0.4
+     * @inheritdoc
      */
     public function populate()
     {
@@ -163,10 +159,7 @@ class ModelPopulate
     }
 
     /**
-     * Finds records corresponding to one or multiple relations and populates them into the primary models.
-     * @param array $with a list of relations that this query should be performed with. Please
-     * refer to [[with()]] for details about specifying this parameter.
-     * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
+     * @inheritdoc
      */
     public function findWith($with, &$models)
     {
@@ -186,9 +179,7 @@ class ModelPopulate
     }
 
     /**
-     * Executes the query and returns all results as an array.
-     * If this parameter is not given, the `elasticsearch` application component will be used.
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     * @inheritdoc
      */
     public function all()
     {
@@ -203,9 +194,7 @@ class ModelPopulate
     }
 
     /**
-     * Executes the query and returns all results as an array.
-     * If this parameter is not given, the `elasticsearch` application component will be used.
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     * @inheritdoc
      */
     public function one()
     {

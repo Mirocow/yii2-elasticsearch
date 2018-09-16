@@ -4,21 +4,21 @@ namespace mirocow\elasticsearch\contracts;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 
 /**
- * Interface Indexer
+ * Interface IndexerInterface
  * @package mirocow\elasticsearch\contracts
  */
-interface Indexer
+interface IndexerInterface
 {
     /**
      * Регистрирует поисковый иднекс в индексаторе.
      * Методы индексатора сами определяют, к какому индексу относится документ.
      * @see SearchIndex::accepts()
      *
-     * @param Index $index
+     * @param IndexInterface $index
      * @throws SearchIndexerException
      * @return void
      */
-    public function registerIndex(Index $index) ;
+    public function registerIndex(IndexInterface $index) ;
 
     /**
      * Добавляет документ в индекс

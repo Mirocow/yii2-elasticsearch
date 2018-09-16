@@ -7,11 +7,12 @@ use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
 use mirocow\elasticsearch\components\queries\QueryBuilder;
-use mirocow\elasticsearch\contracts\Index;
+use mirocow\elasticsearch\contracts\IndexInterface;
+use mirocow\elasticsearch\contracts\QueryInterface;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use yii\helpers\ArrayHelper;
 
-abstract class AbstractSearchIndex implements Index
+abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
 {
     public $hosts = [
       'localhost:9200'
@@ -125,8 +126,10 @@ abstract class AbstractSearchIndex implements Index
      * @deprecated
      * @param int $documentId
      * @param $document
+     * @param int $parent
+     * @return array
      */
-    public function index(int $documentId, $document)
+    public function index(int $documentId, $document, $parent = null)
     {
         $this->documentCreate($documentId, $document);
     }
@@ -134,8 +137,10 @@ abstract class AbstractSearchIndex implements Index
     /**
      * @param int $documentId
      * @param $document
+     * @param int $parent
+     * @return array
      */
-    public function documentCreate(int $documentId, $document)
+    public function documentCreate(int $documentId, $document, $parent = null)
     {
         $query = [
             'index' => $this->name(),
@@ -151,9 +156,10 @@ abstract class AbstractSearchIndex implements Index
      * @deprecated
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-get.html
      * @param int $documentId
+     * @param int $parent
      * @return array
      */
-    public function getById(int $documentId, $onlySource = true)
+    public function getById(int $documentId, $onlySource = true, $parent = null)
     {
         return $this->documentGetById($documentId, $onlySource);
     }
@@ -161,9 +167,11 @@ abstract class AbstractSearchIndex implements Index
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-get.html
      * @param int $documentId
+     * @param bool $onlySource
+     * @param int $parent
      * @return array
      */
-    public function documentGetById(int $documentId, $onlySource = true){
+    public function documentGetById(int $documentId, $onlySource = true, $parent = null){
         $query = [
             'index' => $this->name(),
             'type' => $this->type(),
@@ -184,6 +192,7 @@ abstract class AbstractSearchIndex implements Index
      * @param int $documentId
      * @param $document
      * @param string $type doc, script
+     * @return array
      */
     public function documentExists(int $documentId)
     {
@@ -200,9 +209,10 @@ abstract class AbstractSearchIndex implements Index
      * @deprecated
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-delete.html
      * @param int $documentId
+     * @param int $parent
      * @return void
      */
-    public function removeById(int $documentId)
+    public function removeById(int $documentId, $parent = null)
     {
         $this->documentRemoveById($documentId);
     }
@@ -210,9 +220,10 @@ abstract class AbstractSearchIndex implements Index
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-delete.html
      * @param int $documentId
+     * @param int $parent
      * @return void
      */
-    public function documentRemoveById(int $documentId)
+    public function documentRemoveById(int $documentId, $parent = null)
     {
         $query = [
             'index' => $this->name(),
@@ -229,8 +240,10 @@ abstract class AbstractSearchIndex implements Index
      * @param int $documentId
      * @param $document
      * @param string $type doc, script
+     * @param int $parent
+     * @return array
      */
-    public function updateById(int $documentId, $document, $type = 'doc')
+    public function updateById(int $documentId, $document, $type = 'doc', $parent = null)
     {
         return $this->documentUpdateById($documentId, $document, $type);
     }
@@ -240,8 +253,10 @@ abstract class AbstractSearchIndex implements Index
      * @param int $documentId
      * @param $document
      * @param string $type doc, script
+     * @param int $parent
+     * @return array
      */
-    public function documentUpdateById(int $documentId, $document, $type = 'doc')
+    public function documentUpdateById(int $documentId, $document, $type = 'doc', $parent = null)
     {
         $query = [
             'index' => $this->name(),

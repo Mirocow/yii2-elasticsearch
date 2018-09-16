@@ -1,8 +1,8 @@
 <?php
 namespace mirocow\elasticsearch;
 
-use mirocow\elasticsearch\contracts\ProgressLogger;
-use mirocow\elasticsearch\contracts\Indexer;
+use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
+use mirocow\elasticsearch\contracts\IndexerInterface;
 use mirocow\elasticsearch\components\factories\IndexerFactory;
 use mirocow\elasticsearch\components\loggers\ConsoleProgressLogger;
 use Yii;
@@ -16,8 +16,8 @@ class Bootstrap implements BootstrapInterface
     public function bootstrap($app)
     {
         Yii::$container->setSingletons([
-            ProgressLogger::class => ConsoleProgressLogger::class,
-            Indexer::class => [[IndexerFactory::class, 'getInstance'], []]
+            ProgressLoggerInterface::class => ConsoleProgressLogger::class,
+            IndexerInterface::class => [[IndexerFactory::class, 'getInstance'], []]
         ]);
     }
 }

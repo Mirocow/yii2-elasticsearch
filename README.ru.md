@@ -6,7 +6,7 @@ $ composer require --prefer-dist mirocow/yii2-elasticsearch
 
 # Настройки
 
-* создать класс реализующий интерфейс common\modules\elasticsearch\contracts\Index
+* создать класс реализующий интерфейс common\modules\elasticsearch\contracts\IndexInterface
 * добавить его в настройках модуля индексации в common/config/main.php
 * запустить индексацию
 * Построить запрос используя построители (QueryBuilder - для самого запроса и (AggBuilder и AggregationMulti) для построения агрегации)
@@ -150,7 +150,7 @@ class ProductFacets extends ProductIndex
 ```php
 use mirocow\elasticsearch\components\indexes\ModelPopulate;
 
-final class ProductPopulate extends ModelPopulate implements \mirocow\elasticsearch\contracts\Populate
+final class ProductPopulate extends ModelPopulate
 {
     public $modelClass = Product::class;
 }
@@ -161,7 +161,7 @@ final class ProductPopulate extends ModelPopulate implements \mirocow\elasticsea
 ```php
 use mirocow\elasticsearch\components\queries\QueryBuilder;
 use mirocow\elasticsearch\components\factories\IndexerFactory;
-use mirocow\elasticsearch\components\queries\SearchDataProvider;
+use mirocow\elasticsearch\components\indexes\SearchDataProvider;
 
 class ProductSearch extends Product
 {

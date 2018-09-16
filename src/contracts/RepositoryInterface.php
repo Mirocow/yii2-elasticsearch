@@ -4,7 +4,11 @@ namespace mirocow\elasticsearch\contracts;
 use common\repositories\exceptions\EntityNotFoundException;
 use yii\db\ActiveRecord;
 
-interface Repository
+/**
+ * Interface RepositoryInterface
+ * @package mirocow\elasticsearch\contracts
+ */
+interface RepositoryInterface
 {
     /**
      * @param int $id

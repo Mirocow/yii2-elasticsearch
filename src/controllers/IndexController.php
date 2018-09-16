@@ -1,7 +1,7 @@
 <?php
 namespace mirocow\elasticsearch\controllers;
 
-use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use mirocow\elasticsearch\controllers\index\actions\ActionCreate;
 use mirocow\elasticsearch\controllers\index\actions\ActionDestroy;
 use mirocow\elasticsearch\controllers\index\actions\ActionPopulate;
@@ -29,8 +29,8 @@ class IndexController extends Controller
 
     public function beforeAction($action)
     {
-        /** @var ProgressLogger $logger */
-        $logger = \Yii::$container->get(ProgressLogger::class);
+        /** @var ProgressLoggerInterface $logger */
+        $logger = \Yii::$container->get(ProgressLoggerInterface::class);
 
         $logger->interactive = $this->interactive;
 

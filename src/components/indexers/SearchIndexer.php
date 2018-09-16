@@ -1,33 +1,33 @@
 <?php
 namespace mirocow\elasticsearch\components\indexers;
 
-use mirocow\elasticsearch\contracts\Index;
-use mirocow\elasticsearch\contracts\Indexer;
-use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\IndexInterface;
+use mirocow\elasticsearch\contracts\IndexerInterface;
+use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use yii\base\Exception;
 
-final class SearchIndexer implements Indexer
+final class SearchIndexer implements IndexerInterface
 {
-    /** @var Index[] */
+    /** @var IndexInterface[] */
     private $indexes = [];
 
-    /** @var ProgressLogger */
+    /** @var ProgressLoggerInterface */
     private $progressLogger;
 
     /**
      * SearchIndexer constructor.
-     * @param ProgressLogger $progressLogger
+     * @param ProgressLoggerInterface $progressLogger
      */
-    public function __construct(ProgressLogger $progressLogger)
+    public function __construct(ProgressLoggerInterface $progressLogger)
     {
         $this->progressLogger = $progressLogger;
     }
 
     /**
-     * @param Index $index
+     * @param IndexInterface $index
      */
-    public function registerIndex(Index $index)
+    public function registerIndex(IndexInterface $index)
     {
         if (!isset($this->indexes[$index->name()])) {
             $this->indexes[$index->name()] = $index;
@@ -37,7 +37,7 @@ final class SearchIndexer implements Indexer
 
     /**
      * @param $indexName
-     * @return array|Index[]
+     * @return array|IndexInterface[]
      * @throws SearchIndexerException
      */
     private function getIndexes($indexName)
@@ -68,7 +68,7 @@ final class SearchIndexer implements Indexer
 
     /**
      * @param string $indexName
-     * @return array|Index[]|mixed
+     * @return array|IndexInterface[]|mixed
      * @throws SearchIndexerException
      */
     public function getIndex(string $indexName = '')

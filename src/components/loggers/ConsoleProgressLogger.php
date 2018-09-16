@@ -1,10 +1,10 @@
 <?php
 namespace mirocow\elasticsearch\components\loggers;
 
-use mirocow\elasticsearch\contracts\ProgressLogger;
+use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use yii\helpers\Console;
 
-final class ConsoleProgressLogger implements ProgressLogger
+final class ConsoleProgressLogger implements ProgressLoggerInterface
 {
     public $interactive = false;
 
