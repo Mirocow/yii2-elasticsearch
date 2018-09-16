@@ -2,7 +2,7 @@
   "name": "mirocow/yii2-elasticsearch",
   "description": "Yii2 elasticsearch client",
   "type": "yii2-extension",
-  "license": "GPL-v3",
+  "license": "BSD-3-Clause",
   "support": {
     "issues": "https://github.com/mirocow/yii2-elasticsearch",
     "source": "https://github.com/mirocow/yii2-elasticsearch"
