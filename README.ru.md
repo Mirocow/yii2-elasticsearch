@@ -214,10 +214,12 @@ class ProductSearch extends Product
 }
 ```
 
-# Документация
+# Документация или FAQ
 
 * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html
 * https://discuss.elastic.co/c/in-your-native-tongue/russian
+* https://ru.stackoverflow.com/search?q=Elasticsearch
+* http://qaru.site/search?query=ElasticSearch
 * https://discuss.elastic.co/c/elasticsearch
 
 # TODO
