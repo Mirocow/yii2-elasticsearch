@@ -185,10 +185,9 @@ class ModelPopulate implements PopulateInterface
     {
         $this->search();
 
-        if (empty($this->result['hits']['hits'])) {
+        if(!$this->result){
             return [];
         }
-        $this->result = $this->result['hits']['hits'];
 
         return $this->populate();
     }
@@ -224,10 +223,19 @@ class ModelPopulate implements PopulateInterface
     {
         $result = &$this->result;
 
-        if(!empty($result['hits']['hits'])) {
+        // Check result`s format
+        if(isset($result['hits']['hits'])) {
+            $items = $result['hits']['hits'];
+        } elseif(is_array($result)) {
+            $items = array_values($result);
+        }
+
+        if(!empty($items)) {
+
+            // Select fields from result
             if ($this->select) {
                 $hits = [];
-                foreach ($result['hits']['hits'] as $item) {
+                foreach ($items as $item) {
                     if(substr($this->select, -2) == '.*') {
                         $key = substr($this->select, 0, strlen($this->select)-2);
                         $values = ArrayHelper::getValue($item, $key);
@@ -241,22 +249,31 @@ class ModelPopulate implements PopulateInterface
                         }
                     }
                 }
-                $result['hits']['hits'] = $hits;
+                $items = $hits;
+                unset($hits);
             }
 
+            // Load ActiveRecord`s models
             if (!$this->asArray) {
-                $models = $this->createModels($result['hits']['hits']);
+                $models = $this->createModels($items);
                 if (!empty($this->with)) {
                     $this->findWith($this->with, $models);
                 }
                 foreach ($models as $model) {
                     $model->afterFind();
                 }
-                $result['hits']['hits'] = $models;
+                $items = $models;
+                unset($models);
             }
+
         }
 
-        return $result;
+        if(!empty($items)){
+            $this->result = $items;
+            unset($items);
+        }
+
+        return $this->result;
     }
 
 }
