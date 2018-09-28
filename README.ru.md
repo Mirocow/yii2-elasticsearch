@@ -179,7 +179,7 @@ class ProductSearch extends Product
             'modelClass' => (new ProductPopulate())->select('_source.attributes'),
             'search' => $search,
             'query' => $query,
-            'sort' => QueryHelper::sortBy(['_score' => SORT_ASC]);,
+            'sort' => QueryHelper::sortBy(['_score' => SORT_ASC]),
             'pagination' => [
                 'pageSize' => 10,
             ],
