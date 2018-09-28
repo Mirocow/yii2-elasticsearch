@@ -5,6 +5,7 @@ use mirocow\elasticsearch\components\indexes\AbstractSearchIndex;
 use mirocow\elasticsearch\components\indexes\ModelPopulate;
 use mirocow\elasticsearch\components\queries\Aggregation\Aggregation;
 use mirocow\elasticsearch\components\queries\Aggregation\AggregationMulti;
+use mirocow\elasticsearch\components\queries\helpers\QueryHelper;
 use mirocow\elasticsearch\components\queries\QueryBuilder;
 use mirocow\elasticsearch\contracts\IndexInterface;
 use yii\base\InvalidConfigException;
@@ -162,7 +163,7 @@ class SearchDataProvider extends BaseDataProvider
     public function getSort()
     {
         if(!$this->sort){
-            $this->sort = ['_score' => SORT_DESC];
+            $this->sort = QueryHelper::sortBy(['_score' => SORT_DESC]);
         }
 
         return $this->sort;
