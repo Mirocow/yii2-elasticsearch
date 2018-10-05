@@ -20,13 +20,8 @@ class IndexerFactory
         /** @var ProgressLoggerInterface $logger */
         $logger = Yii::$container->get(ProgressLoggerInterface::class);
 
-        $module = Yii::$app->getModule(Module::MODULE_NAME);
-
-        /** @var array[] $indexes */
-        $indexes = $module->indexes ?? [];
-
         $searchIndexer = new SearchIndexer($logger);
-        foreach ($indexes as $indexConfig) {
+        foreach (self::getIndexes() as $indexConfig) {
             $className = $indexConfig['class'];
 
             if(!$className){
@@ -49,12 +44,7 @@ class IndexerFactory
      */
     public static function createIndex($className, $indexConfig = [])
     {
-        $module = Yii::$app->getModule(Module::MODULE_NAME);
-
-        /** @var array[] $indexes */
-        $indexes = $module->indexes ?? [];
-
-        foreach ($indexes as $config) {
+        foreach (self::getIndexes() as $config) {
             if($className == $config['class']){
                 unset($config['class']);
                 $indexConfig = ArrayHelper::merge($indexConfig, $config);
@@ -73,5 +63,23 @@ class IndexerFactory
         }
 
         return Yii::$container->get($className, $construct = [], $indexConfig);
+    }
+
+    /**
+     * @return null|\mirocow\elasticsearch\Module
+     */
+    public static function getModule()
+    {
+        return Yii::$app->getModule(Module::MODULE_NAME);
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public static function getIndexes()
+    {
+        $module = self::getModule();
+
+        return $module->indexes ?? [];
     }
 }

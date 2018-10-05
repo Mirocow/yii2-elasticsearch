@@ -163,17 +163,41 @@ class QueryHelper
 
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-wildcard-query.html
-     * expects * somewhere in the string, if at the end, might as well just use prefix instead
+     * Expects * somewhere in the string, if at the end, might as well just use prefix instead
      * @param string $field
-     * @param string $searchQuery
+     * @param string $match
      * @return object
      */
-    public static function wildcard($field, $searchQuery) :\stdClass
+    public static function wildcard($field, $match, $searchQuery = []) :\stdClass
     {
+        $query = [
+            $field => $match,
+        ];
+
+        $query = ArrayHelper::merge($query, $searchQuery);
+
         return (object) [
-            'wildcard' => [
-                $field => "$searchQuery"
-            ]
+            'wildcard' => $query
+        ];
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-regexp-query.html
+     * The regexp query allows you to use regular expression term queries.
+     * @param string $field
+     * @param string $match
+     * @return object
+     */
+    public static function regexp($field, $match, $searchQuery = []) :\stdClass
+    {
+        $query = [
+            $field => $match,
+        ];
+
+        $query = ArrayHelper::merge($query, $searchQuery);
+
+        return (object) [
+            'regexp' => $query
         ];
     }
 

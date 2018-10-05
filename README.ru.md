@@ -216,6 +216,16 @@ class ProductSearch extends Product
 
 # Документация или FAQ
 
+## Документация
+
+### Анализ и маппинг
+
+* https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis-analyzers.html
+* https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analysis.html
+* https://www.elastic.co/guide/en/elasticsearch/reference/5.6/analyzer.html
+
+## Ссылки
+
 * https://www.elastic.co/guide/en/elasticsearch/reference/5.6/index.html
 * https://discuss.elastic.co/c/in-your-native-tongue/russian
 * https://ru.stackoverflow.com/search?q=Elasticsearch

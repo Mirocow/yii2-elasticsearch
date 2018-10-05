@@ -22,7 +22,7 @@ class QueryBuilder
 
     /**
      * Can accept parameters:
-     * '*', false - итд
+     * '*', false - e.t.c.
      * @var array|string|bool
      */
     private $withSource = false;
