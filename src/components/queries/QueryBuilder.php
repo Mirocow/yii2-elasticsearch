@@ -63,6 +63,11 @@ class QueryBuilder
     private $sort = [];
 
     /**
+     * @var array
+     */
+    private $rescore = [];
+
+    /**
      * @var bool
      */
     private $release = true;
@@ -78,23 +83,12 @@ class QueryBuilder
     private $result = [];
 
     /**
-     *
-     */
-    private function init()
-    {
-        if(!$this->query){
-            $this->query = new Query;
-        }
-    }
-
-    /**
      * @param string $key
      * @param $value
      * @return $this
      */
     public function set($key, $value)
     {
-        $this->init();
         if($value) {
             ArrayHelper::setValue($this->query, $key, $value);
         }
@@ -107,7 +101,6 @@ class QueryBuilder
      */
     public function get($key)
     {
-        $this->init();
         return ArrayHelper::getValue($this->query, $key);
     }
 
@@ -117,7 +110,6 @@ class QueryBuilder
      */
     public function add($value)
     {
-        $this->init();
         if($value) {
             $this->query = ArrayHelper::merge($this->query, $value);
         }
@@ -125,6 +117,7 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
      * @param string|array $query
      * @return $this
      */
@@ -137,6 +130,8 @@ class QueryBuilder
     }
 
     /**
+     * The size parameter allows you to configure the maximum amount of hits to be returned.
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
      * @param int $size
      * @return $this
      */
@@ -147,6 +142,9 @@ class QueryBuilder
     }
 
     /**
+     * Pagination of results can be done by using the from and size parameters.
+     * The from parameter defines the offset from the first result you want to fetch.
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
      * @param int $from
      * @return $this
      */
@@ -157,6 +155,9 @@ class QueryBuilder
     }
 
     /**
+     * Allows to add one or more sort on specific fields. Each sort can be reversed as well.
+     * The sort is defined on a per field level, with special field name for _score to sort by score, and _doc to sort by index order.
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
      * @param array $fieldsName
      * @return $this
      */
@@ -169,6 +170,7 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
      * @param Aggregation|AggregationMulti $aggregations
      * @return $this
      */
@@ -181,6 +183,7 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
      * @param array $highlight
      * @return $this
      */
@@ -191,6 +194,7 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
      * @param array $source
      * @return $this
      */
@@ -201,6 +205,19 @@ class QueryBuilder
     }
 
     /**
+     * The query rescorer executes a second query only on the Top-K results returned by the query and post_filter phases.
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-rescore.html
+     * @param array $rescore
+     * @return $this
+     */
+    public function rescore(array $rescore = [])
+    {
+        $this->rescore = $rescore;
+        return $this;
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-post-filter.html
      * @param array $filter
      * @return $this
      */
@@ -211,6 +228,7 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
      * @param array|string|bool $data
      */
     public function withSource($data = '*')
@@ -300,6 +318,14 @@ class QueryBuilder
     }
 
     /**
+     * @return string|array
+     */
+    protected function prepareRescore()
+    {
+        return $this->rescore;
+    }
+
+    /**
      * @return array Elasticsearch DSL body
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
      */
@@ -308,18 +334,18 @@ class QueryBuilder
 
         $fields = [
 
-            'query', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-query.html
-            'filter', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-post-filter.html
-            'from', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
-            'size', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-from-size.html
-            'aggs', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
-            'highlight', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
-            'sort', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
-            'source', // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
+            'query',
+            'filter',
+            'from',
+            'size',
+            'aggs',
+            'highlight',
+            'sort',
+            'source',
+            'rescore',
             //'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
             //'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
             //'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
-            //'rescore', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-rescore.html
             //'explain', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-explain.html
             //'min_score', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
             //'collapse', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-collapse.html
