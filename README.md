@@ -1,6 +1,7 @@
 # Elasticsearch module based on official Elasticsearch PHP library
 
 [![Join the chat at https://gitter.im/Mirocow/yii2-elasticsearch](https://badges.gitter.im/Mirocow/yii2-elasticsearch.svg)](https://gitter.im/Mirocow/yii2-elasticsearch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_shield)
 
 Docs are available in english and [russian](README.ru.md).
 
@@ -66,3 +67,7 @@ $ export PHP_IDE_CONFIG="serverName=www.site.loc" && export XDEBUG_CONFIG="remot
 # Query
 
 For creating queries, you may use https://github.com/crowdskout/es-search-builder
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_large)
