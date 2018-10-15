@@ -44,7 +44,14 @@ class IndexerFactory
      */
     public static function createIndex($className, $indexConfig = [])
     {
-        foreach (self::getIndexes() as $config) {
+        $configs = self::getIndexes();
+
+        if($indexConfig) {
+            $configs = ArrayHelper::merge($configs, $indexConfig);
+            $indexConfig = [];
+        }
+
+        foreach ($configs as $config) {
             if($className == $config['class']){
                 unset($config['class']);
                 $indexConfig = ArrayHelper::merge($indexConfig, $config);

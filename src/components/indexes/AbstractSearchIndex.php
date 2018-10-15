@@ -294,13 +294,12 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     /**
      * Execute query DSL
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl.html
-     * @see https://ru.wikipedia.org/wiki/Okapi_BM25 for calculate _score
-     * @param QueryBuilder|array $query
-     * @param $method will be search or explain
+     * @param array $query
+     * @param string $method
      * @return $this
      * @throws \Exception
      */
-    public function search($query = [], $method = 'search')
+    public function execute($query = [], $method = 'search')
     {
         if($query instanceof QueryBuilder){
             /** @var QueryBuilder $query */
@@ -324,6 +323,28 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         $this->result = $result;
 
         return $this;
+    }
+
+    /**
+     * Execute query DSL
+     * @see https://ru.wikipedia.org/wiki/Okapi_BM25 for calculate _score
+     * @param $query
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function search($query)
+    {
+        return $this->execute($query, 'search');
+    }
+
+    /**
+     * @param $query
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function explain($query)
+    {
+        return $this->execute($query, 'explain');
     }
 
     /**
