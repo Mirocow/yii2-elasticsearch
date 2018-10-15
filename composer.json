@@ -7,7 +7,7 @@
     "issues": "https://github.com/mirocow/yii2-elasticsearch",
     "source": "https://github.com/mirocow/yii2-elasticsearch"
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {
     "php": ">=5.4.0",
     "yiisoft/yii2": ">=2.0.0",
