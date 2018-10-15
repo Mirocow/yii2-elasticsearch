@@ -301,18 +301,22 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
      */
     public function execute($query = [], $method = 'search')
     {
+        $method = strtolower($method);
+
         if($query instanceof QueryBuilder){
             /** @var QueryBuilder $query */
             $query = $query->generateQuery();
         }
 
-        $query = [
-            'index' => $this->name(),
-            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
-            'type'  => $this->type(),
-            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
-            'body'  => $query,
-        ];
+        if($method <> 'bulk') {
+            $query = [
+                'index' => $this->name(),
+                // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
+                'type' => $this->type(),
+                // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
+                'body' => $query,
+            ];
+        }
 
         try {
             $result = $this->getClient()->{$method}($query);
