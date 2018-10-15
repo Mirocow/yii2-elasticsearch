@@ -5,13 +5,17 @@
 
 Docs are available in english and [russian](README.ru.md).
 
-# Install
+## Use with
+
+* mirocow/yii2-elasticsearch-log
+
+## Install
 
 ```bash
 $ composer require --prefer-dist mirocow/yii2-elasticsearch
 ```
 
-# Configure
+## Configure
 
 * Create a class that implements the `common\modules\elasticsearch\contracts\Index` interface.
 * Add it to the module configuration in `common/config/main.php`
@@ -36,7 +40,7 @@ return [
 ];
 ```
 
-# Create index
+## Create index
 
 Create empty index
 ```bash
@@ -58,16 +62,15 @@ Remove all existing indexes, re-create all indexes and re-index all documents fo
 $ php yii elasticsearch/index/rebuild
 ```
 
-# Debug
+## Debug
 
 ```bash
 $ export PHP_IDE_CONFIG="serverName=www.site.loc" && export XDEBUG_CONFIG="remote_host=192.168.1.6 idekey=xdebug" && php7.0 ./yii elasticsearch/index/create products_search
 ```
 
-# Query
+## Query
 
 For creating queries, you may use https://github.com/crowdskout/es-search-builder
-
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_large)
