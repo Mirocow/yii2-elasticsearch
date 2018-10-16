@@ -89,7 +89,7 @@ class ConsoleAction extends Action
      */
     protected function composeMutexName()
     {
-        return get_class($this);
+        return self::class;
     }
 
 }
