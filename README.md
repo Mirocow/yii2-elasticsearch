@@ -1,8 +1,8 @@
 # Elasticsearch module based on official Elasticsearch PHP library
 
-[![Latest Stable Version](https://poser.pugx.org/mirocow/yii2-notification/v/stable)](https://packagist.org/packages/mirocow/yii2-notification) 
-[![Latest Unstable Version](https://poser.pugx.org/mirocow/yii2-notification/v/unstable)](https://packagist.org/packages/mirocow/yii2-notification) 
-[![Total Downloads](https://poser.pugx.org/mirocow/yii2-notification/downloads)](https://packagist.org/packages/mirocow/yii2-notification) [![License](https://poser.pugx.org/mirocow/yii2-notification/license)](https://packagist.org/packages/mirocow/yii2-notification)
+[![Latest Stable Version](https://poser.pugx.org/mirocow/yii2-elasticsearch/v/stable)](https://packagist.org/packages/mirocow/yii2-elasticsearch) 
+[![Latest Unstable Version](https://poser.pugx.org/mirocow/yii2-elasticsearch/v/unstable)](https://packagist.org/packages/mirocow/yii2-elasticsearch) 
+[![Total Downloads](https://poser.pugx.org/mirocow/yii2-elasticsearch/downloads)](https://packagist.org/packages/mirocow/yii2-elasticsearch) [![License](https://poser.pugx.org/mirocow/yii2-elasticsearch/license)](https://packagist.org/packages/mirocow/yii2-elasticsearch)
 [![Join the chat at https://gitter.im/Mirocow/yii2-elasticsearch](https://badges.gitter.im/Mirocow/yii2-elasticsearch.svg)](https://gitter.im/Mirocow/yii2-elasticsearch?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_shield)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a773029aca32f417b333/maintainability)](https://codeclimate.com/github/Mirocow/yii2-elasticsearch/maintainability)
