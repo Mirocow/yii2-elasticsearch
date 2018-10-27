@@ -309,7 +309,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             $query = $query->generateQuery();
         }
 
-        $profile = $this->name() . '/' . $this->type() . '/' . $method;
+        $profile = 'GET /' . $this->name() . '/' . $this->type() . '/_' . $method;
 
         if(YII_DEBUG) {
             $requestBody = json_encode($query);
