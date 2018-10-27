@@ -9,9 +9,10 @@
 
 Docs are available in english and [russian](README.ru.md).
 
-## Use with
+## Honey modules
 
 * mirocow/yii2-elasticsearch-log
+* mirocow/yii2-elasticsearch-debug
 
 ## Install
 
