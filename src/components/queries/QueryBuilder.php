@@ -376,4 +376,12 @@ class QueryBuilder
         return $this->body;
     }
 
+    /**
+     * @return false|string
+     */
+    public function __toString()
+    {
+        return json_encode($this->generateQuery());
+    }
+
 }

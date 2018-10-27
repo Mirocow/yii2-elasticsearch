@@ -11,6 +11,7 @@ use mirocow\elasticsearch\contracts\IndexInterface;
 use mirocow\elasticsearch\contracts\QueryInterface;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use yii\helpers\ArrayHelper;
+use Yii;
 
 abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
 {
@@ -308,6 +309,14 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             $query = $query->generateQuery();
         }
 
+        $profile = $this->name() . '/' . $this->type() . '/' . $method;
+
+        if(YII_DEBUG) {
+            $requestBody = json_encode($query);
+            Yii::trace("Sending request to elasticsearch node: $method\n$requestBody", __METHOD__);
+            Yii::beginProfile($profile, __METHOD__);
+        }
+
         if($method <> 'bulk') {
             $query = [
                 'index' => $this->name(),
@@ -322,6 +331,10 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             $result = $this->getClient()->{$method}($query);
         } catch (\Exception $e) {
             throw $e;
+        }
+
+        if(YII_DEBUG) {
+            Yii::endProfile($profile, __METHOD__);
         }
 
         $this->result = $result;
