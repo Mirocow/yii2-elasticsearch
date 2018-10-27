@@ -11,8 +11,8 @@ Docs are available in english and [russian](README.ru.md).
 
 ## Honey modules
 
-* mirocow/yii2-elasticsearch-log
-* mirocow/yii2-elasticsearch-debug
+* [mirocow/yii2-elasticsearch-log](https://github.com/Mirocow/yii2-elasticsearch-log)
+* [mirocow/yii2-elasticsearch-debug](https://github.com/Mirocow/yii2-elasticsearch-debug)
 
 ## Install
 
