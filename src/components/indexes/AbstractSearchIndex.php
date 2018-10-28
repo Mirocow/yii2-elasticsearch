@@ -313,7 +313,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
 
         if(YII_DEBUG) {
             $requestBody = json_encode($query);
-            Yii::trace("Sending request to elasticsearch node: $method\n$requestBody", __METHOD__);
+            Yii::info($requestBody, __METHOD__);
             Yii::beginProfile($profile, __METHOD__);
         }
 
@@ -334,6 +334,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         }
 
         if(YII_DEBUG) {
+            Yii::info($result, __METHOD__);
             Yii::endProfile($profile, __METHOD__);
         }
 
