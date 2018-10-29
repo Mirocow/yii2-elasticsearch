@@ -84,7 +84,9 @@ class SearchDataProvider extends BaseDataProvider
             throw new InvalidConfigException('The "modelClass" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\PopulateInterface e.g. mirocow\elasticsearch\components\indexes\ModelPopulate or its subclasses.');
         }
 
-        return $this->modelClass->setResult($this->response)->all();
+        return $this->modelClass
+            ->setResult($this->response)
+            ->all();
     }
 
     /**

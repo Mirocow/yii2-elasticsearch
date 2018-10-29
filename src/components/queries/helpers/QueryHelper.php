@@ -494,7 +494,7 @@ class QueryHelper
      * @param int $direction
      * @return array
      */
-    public static function sortByScript($script = '', int $direction = SORT_ASC) :array
+    public static function sortByScript($script = '', int $direction = SORT_ASC, $language = 'painless') :array
     {
         if(!$script){
             return [];
@@ -505,7 +505,7 @@ class QueryHelper
                 'script' => $script,
                 'type' => 'number',
                 'order' => $direction === SORT_DESC ? 'desc' : 'asc',
-                'lang' => 'painless',
+                'lang' => $language,
             ]
         ];
     }
@@ -546,20 +546,28 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-script-query.html
      * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-specification.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-examples.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-scripting-expression.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-scripting-groovy.html
      * @param string $script
      * @param array $params
      * @return array
      */
-    public static function queryByScript(string $script, $params = []) :array
+    public static function queryByScript(string $script, $params = [], $language = 'painless') :array
     {
-        return [
+        $script = [
             'script' => (object) [
-                'script' => (object) [
-                    'source' => $script,
-                    'lang' => 'painless',
-                    'params' => (object) $params,
-                ]
-            ],
+                'source' => $script,
+                'lang' => $language,
+            ]            
+        ];
+
+        if($params){
+            $script['script']['params'] = (object) $params;
+        }
+
+        return [
+            'script' => (object) $script,
         ];
     }
 }
