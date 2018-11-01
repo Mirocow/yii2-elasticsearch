@@ -36,7 +36,53 @@ return [
     ]
 ];
 ```
-# Model indexers: для индексации индекса
+
+## Index repository: хранилище заливаемое в индекс
+
+```php
+<?php
+
+namespace common\repositories\repositories;
+
+use common\models\essence\Product;
+use common\repositories\exceptions\EntityNotFoundException;
+
+final class ProductRepository implements \mirocow\elasticsearch\contracts\RepositoryInterface
+{
+
+    /** @inheritdoc */
+    public function get(int $id)
+    {
+        $product = Product::find()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$product) {
+            throw new EntityNotFoundException('Product with id ' . $id . ' not found');
+        }
+        return $product;
+    }
+
+    /** @inheritdoc */
+    public function ids()
+    {
+        return Product::find()
+            ->alias('product')
+            ->select('product.id')
+            ->asArray()
+            ->each();
+    }
+
+    /** @inheritdoc */
+    public function count(): int
+    {
+        return (int)Product::find()
+            ->count();
+    }
+}
+```
+
+## Model indexers: для индексации индекса
 
 ```php
 <?php
