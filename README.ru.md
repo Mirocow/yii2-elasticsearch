@@ -36,22 +36,13 @@ return [
     ]
 ];
 ```
-# Модкль для индексации индекса
+# Model indexers: для индексации индекса
 
 ```php
 <?php
 namespace common\repositories\indexes;
 
-use common\models\essence\Cat;
-use common\models\essence\Models;
-use common\models\essence\Product;
-use common\models\essence\ProductProp;
-use common\models\essence\Properties;
-use common\models\essence\PropSelectValues;
-use common\models\essence\Tag;
-use common\models\mm\MmProductCollections;
-use common\models\mm\MmWish;
-use common\models\sp\SpBrands;
+use common\essence\Product;
 use common\repositories\exceptions\EntityNotFoundException;
 use common\repositories\repositories\ProductRepository;
 use mirocow\elasticsearch\components\indexes\AbstractSearchIndex;
@@ -422,6 +413,7 @@ class ProductFacets extends ProductIndex
    }
 }   
 ```
+## Model
 
 ### Model: индексируемая модель
 
