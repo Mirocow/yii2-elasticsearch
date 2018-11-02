@@ -14,7 +14,9 @@ Docs are available in english and [russian](README.ru.md).
 * [mirocow/yii2-elasticsearch-log](https://github.com/Mirocow/yii2-elasticsearch-log)
 * [mirocow/yii2-elasticsearch-debug](https://github.com/Mirocow/yii2-elasticsearch-debug)
 
-## Install
+## Install 
+
+### Elasticsearch 5.6.x
 
 ```bash
 $ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
