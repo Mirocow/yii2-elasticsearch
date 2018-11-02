@@ -84,7 +84,7 @@ final class SearchIndexer implements IndexerInterface
     public function createIndex(string $indexName = '', $skipExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
-            $this->progressLogger->logMessage('Creating index: ' . $index->name());
+            $this->progressLogger->logMessage('Creating index: ' . $index->name() . ' type: ' . $index->type());
             $index->create($skipExists);
         }
 
@@ -97,7 +97,7 @@ final class SearchIndexer implements IndexerInterface
     public function destroyIndex(string $indexName = '', $skipNotExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
-            $this->progressLogger->logMessage('Destroying index: ' . $index->name());
+            $this->progressLogger->logMessage('Destroying index: ' . $index->name() . ' type: ' . $index->type());
             $index->destroy($skipNotExists);
         }
     }
@@ -109,7 +109,7 @@ final class SearchIndexer implements IndexerInterface
     public function upgradeIndex(string $indexName = '', $skipNotExists = false)
     {
         foreach ($this->getIndexes($indexName) as $index) {
-            $this->progressLogger->logMessage('Upgrade index: ' . $index->name());
+            $this->progressLogger->logMessage('Upgrade index: ' . $index->name() . ' type: ' . $index->type());
             $index->upgrade($skipNotExists);
         }
     }
@@ -167,7 +167,7 @@ final class SearchIndexer implements IndexerInterface
                 return;
             }
 
-            $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name());
+            $this->progressLogger->logMessage('Indexing documents for index: ' . $index->name() . ' type: ' . $index->type());
 
             $totalSteps = $index->documentCount();
             $step = 1;
@@ -196,6 +196,16 @@ final class SearchIndexer implements IndexerInterface
         $this->destroyIndex($indexName, $skipNotExists);
         $this->createIndex($indexName, $skipExists);
         $this->populate($indexName, $skipNotExists);
+    }
+
+    /**
+     * @param string $indexName
+     *
+     * @return bool
+     */
+    public function verification(string $indexName = '')
+    {
+        return true;
     }
 
 }

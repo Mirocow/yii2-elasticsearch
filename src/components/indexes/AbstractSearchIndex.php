@@ -19,6 +19,12 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
       'localhost:9200'
     ];
 
+    /** @var string */
+    public $index_name = 'index_name';
+
+    /** @var string */
+    public $index_type = 'index_type';
+
     /** @var Client */
     private $client;
 
@@ -45,17 +51,9 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     /** @inheritdoc */
     public function exists() :bool
     {
-        $exists = true;
-        try {
-            $this->getClient()->indices()->get(
-              [
-                'index' => $this->name()
-              ]
-            );
-        } catch (Missing404Exception $e) {
-            $exists = false;
-        }
-        return $exists;
+        return $this->getClient()->indices()->exists([
+            'index' => $this->name()
+        ]);
     }
 
     /** @inheritdoc */
@@ -80,19 +78,19 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     {
         if (!$this->exists()) {
             if(!$skipNotExists) {
-                throw new SearchIndexerException('Index ' . $this->name() . ' not found');
+                throw new SearchIndexerException('Index ' . $this->name() . ' does not exist');
             }
             return;
         }
         try {
             $settings = $this->indexConfig();
-            if(empty($settings['body']['mappings'][$this->name()])){
-                throw new SearchIndexerException("Error remaping index ".$this->name());
+            if(empty($settings['body']['mappings'][$this->type()])){
+                throw new SearchIndexerException("Error remaping type ".$this->type());
             }
             $mapping = [
-              'index' => $this->name(),
-              'type' => $this->type(),
-              'body' => $settings['body']['mappings'][$this->name()],
+                'index' => $this->name(),
+                'type' => $this->type(),
+                'body' => $settings['body']['mappings'][$this->type()],
             ];
             $this->getClient()->indices()->putMapping($mapping);
         } catch (ElasticsearchException $e) {
@@ -269,6 +267,15 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         ];
 
         return $this->getClient()->update($query);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-update-by-query.html
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-update.html
+     */
+    public function documentUpdateByQuery()
+    {
+
     }
 
     /**

@@ -37,7 +37,7 @@ class ActionUpgrade extends ConsoleAction
     public function run(string $indexName = '')
     {
         try {
-            $this->indexer->upgradeIndexes($indexName, $this->skipNotExists);
+            $this->indexer->upgradeIndex($indexName, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
             if($previous = $e->getPrevious()) {
