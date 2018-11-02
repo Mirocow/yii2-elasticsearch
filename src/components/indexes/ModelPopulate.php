@@ -144,7 +144,7 @@ class ModelPopulate implements PopulateInterface
                     }
 
                     // Skip if model id not found
-                    if(!empty($id)){
+                    if(empty($id)){
                         continue;
                     }
 
