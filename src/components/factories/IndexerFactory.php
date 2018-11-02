@@ -5,6 +5,7 @@ use mirocow\elasticsearch\contracts\IndexInterface;
 use mirocow\elasticsearch\contracts\IndexerInterface;
 use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use mirocow\elasticsearch\components\indexers\SearchIndexer;
+use mirocow\elasticsearch\exceptions\SearchQueryException;
 use mirocow\elasticsearch\Module;
 use Yii;
 use yii\base\Exception;
@@ -25,7 +26,7 @@ class IndexerFactory
             $className = $indexConfig['class'];
 
             if(!$className){
-                throw new Exception("Search index class not found");
+                throw new SearchQueryException("Search index class not found");
             }
             unset($indexConfig['class']);
 
@@ -66,7 +67,7 @@ class IndexerFactory
         }
 
         if(!$indexConfig){
-            throw new Exception("Config data not found");
+            throw new SearchQueryException("Config data not found");
         }
 
         return Yii::$container->get($className, $construct = [], $indexConfig);

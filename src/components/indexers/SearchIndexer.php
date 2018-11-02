@@ -5,6 +5,7 @@ use mirocow\elasticsearch\contracts\IndexInterface;
 use mirocow\elasticsearch\contracts\IndexerInterface;
 use mirocow\elasticsearch\contracts\ProgressLoggerInterface;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\exceptions\SearchQueryException;
 use yii\base\Exception;
 
 final class SearchIndexer implements IndexerInterface
@@ -177,7 +178,7 @@ final class SearchIndexer implements IndexerInterface
                 } elseif(is_numeric($document)) {
                     $documentId = $document;
                 } else {
-                    throw new Exception('Wrong format index');
+                    throw new SearchIndexerException('Wrong format index');
                 }
                 $index->addById($documentId);
                 $this->progressLogger->logProgress($totalSteps, $step);

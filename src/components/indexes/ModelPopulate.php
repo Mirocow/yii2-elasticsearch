@@ -2,6 +2,7 @@
 namespace mirocow\elasticsearch\components\indexes;
 
 use mirocow\elasticsearch\contracts\PopulateInterface;
+use mirocow\elasticsearch\exceptions\SearchQueryException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
 use yii\db\ActiveRecord;
@@ -95,10 +96,15 @@ class ModelPopulate implements PopulateInterface
                     } elseif (isset($row[$key])){
                         $key = $row[$key];
                     }
-                } else {
+                } elseif ($this->indexBy instanceof \Closure) {
                     $key = call_user_func($this->indexBy, $row);
                 }
-                $models[$key] = $row;
+
+                if (empty($key)) {
+                    $models[] = $row;
+                } else {
+                    $models[ $key ] = $row;
+                }
             }
         } else {
             /* @var $class ActiveRecord */
@@ -114,44 +120,55 @@ class ModelPopulate implements PopulateInterface
                 /** @var ActiveRecord $modelClass */
                 $modelClass = get_class($model);
 
+                // Reserved elasticsearch sorce field
                 if(isset($row['_source'])) {
                     $row = $row['_source'];
                 }
 
+                // Reseved Elasticsearch ID
                 if(is_numeric($row)){
                     $row = ['_id' => $row];
                 }
 
-                // Fill attributes from _source
+                // Try fill model attributes from _source
                 $modelClass::populateRecord($model, $row);
 
-                // We haven`t all model`s attributes
+                // Model is corrupted and we haven`t all model`s attributes
                 if(count($model->attributes) <> count($row)) {
 
-                    // If exists use special elasticserch field
+                    // If exists special elasticserch field
                     if(!empty($row['_id'])){
                         $id = $row['_id'];
                     } elseif(!empty($row[$this->indexBy])) {
                         $id = $row[$this->indexBy];
-                    } else {
+                    }
+
+                    // Skip if model id not found
+                    if(!empty($id)){
                         continue;
                     }
 
                     $model = $modelClass::findOne(['id' => $id]);
 
+                    // Skip if model not found
                     if(!$model){
                         continue;
                     }
 
                 }
 
+                // Sort models by indexBy
                 if (is_string($this->indexBy)) {
                     $key = $model->{$this->indexBy};
-                } else {
+                } elseif ($this->indexBy instanceof \Closure) {
                     $key = call_user_func($this->indexBy, $model);
                 }
 
-                $models[$key] = $model;
+                if (empty($key)) {
+                    $models[] = $model;
+                } else {
+                    $models[ $key ] = $model;
+                }
             }
         }
 
@@ -236,6 +253,7 @@ class ModelPopulate implements PopulateInterface
             if ($this->select) {
                 $hits = [];
                 foreach ($items as $item) {
+                    // Include *, name.* as wildcard
                     if(substr($this->select, -2) == '.*') {
                         $key = substr($this->select, 0, strlen($this->select)-2);
                         $values = ArrayHelper::getValue($item, $key);
@@ -243,12 +261,22 @@ class ModelPopulate implements PopulateInterface
                             $hits = array_merge($hits, $values);
                         }
                     } else {
-                        $value = ArrayHelper::getValue($item, $this->select);
-                        if($value) {
+                        if($this->select == '*'){
+                            $value = $item;
+                        } else {
+                            $value = ArrayHelper::getValue($item, $this->select);
+                        }
+                         if($value) {
                             $hits[] = $value;
+                            unset($value);
                         }
                     }
                 }
+
+                if(!$hits){
+                    throw new SearchQueryException(\Yii::t('app', 'Result data by select "{select}" not found', ['select' => $this->select ]));
+                }
+
                 $items = $hits;
                 unset($hits);
             }
