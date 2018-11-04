@@ -1,4 +1,4 @@
-# Elasticsearch module based on official Elasticsearch PHP library
+# Elasticsearch client based on official Elasticsearch PHP library
 
 ![www.elasticsearch.com](https://github.com/Mirocow/yii2-elasticsearch/blob/master/documents/elasticsearch.png)
 
