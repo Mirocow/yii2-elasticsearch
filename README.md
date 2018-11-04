@@ -1,6 +1,6 @@
 # Elasticsearch module based on official Elasticsearch PHP library
 
-[![www.elasticsearch.com](https://github.com/Mirocow/yii2-elasticsearch/blob/master/documents/elasticsearch.jpg)
+[![www.elasticsearch.com](https://github.com/Mirocow/yii2-elasticsearch/blob/master/documents/elasticsearch.jpg)]
 
 [![Latest Stable Version](https://poser.pugx.org/mirocow/yii2-elasticsearch/v/stable)](https://packagist.org/packages/mirocow/yii2-elasticsearch) 
 [![Latest Unstable Version](https://poser.pugx.org/mirocow/yii2-elasticsearch/v/unstable)](https://packagist.org/packages/mirocow/yii2-elasticsearch) 
