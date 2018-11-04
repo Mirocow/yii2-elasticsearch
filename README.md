@@ -10,6 +10,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/a773029aca32f417b333/maintainability)](https://codeclimate.com/github/Mirocow/yii2-elasticsearch/maintainability)
 
 Docs are available in english and [russian](README.ru.md).
+Based on https://github.com/elastic/elasticsearch
 
 ## Honey modules
 
