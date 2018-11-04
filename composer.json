@@ -1,6 +1,6 @@
 {
   "name": "mirocow/yii2-elasticsearch",
-  "description": "Yii2 elasticsearch client",
+  "description": "Yii2 Elasticsearch client based on official Elasticsearch PHP library",
   "type": "yii2-extension",
   "license": "BSD-3-Clause",
   "support": {
