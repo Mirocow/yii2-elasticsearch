@@ -413,10 +413,6 @@ class QueryHelper
      */
     public static function limit($limit = null)
     {
-        if(!$limit){
-            return [];
-        }
-
         return (object) [
             'size' => (int) $limit
         ];
@@ -429,10 +425,6 @@ class QueryHelper
      */
     public static function offset($offset = null)
     {
-        if(!$offset){
-            return [];
-        }
-
         return (object) [
             'from' => (int) $offset
         ];
@@ -446,10 +438,6 @@ class QueryHelper
      */
     public static function sortBy($columns) :array
     {
-        if(!$columns){
-            return [];
-        }
-
         return self::buildOrderBy($columns);
     }
 
@@ -462,10 +450,6 @@ class QueryHelper
      */
     public static function sortByMode(string $column, int $direction = SORT_ASC, $mode = 'sum') :array
     {
-        if(!$column){
-            return [];
-        }
-
         return [
             $column => (object) [
                 'order' => $direction === SORT_DESC ? 'desc' : 'asc',
@@ -487,39 +471,12 @@ class QueryHelper
     }
 
     /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#_script_based_sorting
-     *
-     * @example doc['column'].values.size()
-     * @param string $column
-     * @param int $direction
-     * @return array
-     */
-    public static function sortByScript($script = '', int $direction = SORT_ASC, $language = 'painless') :array
-    {
-        if(!$script){
-            return [];
-        }
-
-        return [
-            '_script' => [
-                'script' => $script,
-                'type' => 'number',
-                'order' => $direction === SORT_DESC ? 'desc' : 'asc',
-                'lang' => $language,
-            ]
-        ];
-    }
-
-    /**
      * Adds order by condition to the query
      * @param $columns Examples: ['field' => SORT_ASC]; ['field' => ["order" => "asc", "mode" => "avg"]]
      * @return array|object
      */
     private static function buildOrderBy($columns) :array
     {
-        if (empty($columns)) {
-            return [];
-        }
         $orders = [];
         foreach ($columns as $name => $direction) {
             if (is_string($direction)) {
@@ -544,30 +501,28 @@ class QueryHelper
     }
 
     /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-script-query.html
-     * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-specification.html
-     * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-examples.html
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-scripting-expression.html
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-scripting-groovy.html
      * @param string $script
-     * @param array $params
+     * @param int $direction
+     * @param string $language
+     *
      * @return array
      */
-    public static function queryByScript(string $script, $params = [], $language = 'painless') :array
+    public static function sortByScript(string $script = '', int $direction = SORT_ASC, $language = 'painless') :array
     {
-        $script = [
-            'script' => (object) [
-                'source' => $script,
-                'lang' => $language,
-            ]            
-        ];
+        return ScriptHelper::sort($script, $direction, $language);
+    }
 
-        if($params){
-            $script['script']['params'] = (object) $params;
-        }
-
+    /**
+     * @param string $script
+     * @param array $params
+     * @param string $language
+     *
+     * @return array
+     */
+    public static function queryByScript(string $script = '', $params = [], $language = 'painless') :array
+    {
         return [
-            'script' => (object) $script,
+            'script' => (object) ScriptHelper::query($script, $params, $language),
         ];
     }
 }

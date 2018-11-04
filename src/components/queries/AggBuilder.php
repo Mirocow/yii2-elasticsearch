@@ -108,6 +108,30 @@ class AggBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-script
+     * @param string $field
+     * @param array $termsOptions
+     * @param null $nestedAgg
+     * @param string $aggName
+     *
+     * @return Aggregation
+     */
+    public function termsScript($field, $termsOptions = [], $nestedAgg = null, $aggName = '')
+    {
+        if(!$aggName) {
+            $aggName = "{$field}_terms_agg";
+        }
+        if(!isset($termsOptions['size'])){
+            $termsOptions['size'] = $this->size;
+        }
+        return new Aggregation(
+            AggQueryHelper::terms(null, $termsOptions, $aggName),
+            $this->aggGenerator->getTermsGenerator($aggName),
+            $nestedAgg
+        );
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
      * @param $method
      * @param array $aggregationsOptions

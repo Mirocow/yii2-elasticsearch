@@ -56,7 +56,9 @@ class AggQueryHelper
      */
     public static function terms($field, $termsOptions = [], $aggName = 'terms_agg') :array
     {
-        $termsOptions['field'] = $field;
+        if($field) {
+            $termsOptions['field'] = $field;
+        }
         return [
             $aggName => [
                 'terms' => $termsOptions
