@@ -84,7 +84,7 @@ $ export PHP_IDE_CONFIG="serverName=www.site.loc" && export XDEBUG_CONFIG="remot
 
 ## Query
 
-For creating queries, you may use https://github.com/crowdskout/es-search-builder
+soon!!!
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_large)
