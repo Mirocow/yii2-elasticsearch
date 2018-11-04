@@ -84,7 +84,15 @@ $ export PHP_IDE_CONFIG="serverName=www.site.loc" && export XDEBUG_CONFIG="remot
 
 ## Query
 
-soon!!!
+```php
+<?php
+        /** @var QueryBuilder $query */
+        $query = new QueryBuilder;
+        $query = $query
+            ->add(QueryHelper::bool($filter, $must, $should, $must_not))
+            ->aggregations($aggregations)
+            ->withSource('attributes');
+```
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_large)
