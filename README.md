@@ -85,3 +85,7 @@ For creating queries, you may use https://github.com/crowdskout/es-search-builde
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FMirocow%2Fyii2-elasticsearch?ref=badge_large)
+
+### I use JetBrains products to develop yii2-elasticsearch !
+[![www.jetbrains.com](https://github.com/mirocow/yii2-elasticsearch/blob/master/documents/jetbrains.svg)](http://www.jetbrains.com)
+
