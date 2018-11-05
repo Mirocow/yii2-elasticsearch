@@ -32,7 +32,7 @@ return [
 
     ],
     'bootstrap' => [
-        common\modules\elasticsearch\Bootstrap::class
+        mirocow\elasticsearch\Bootstrap::class,
     ]
 ];
 ```
