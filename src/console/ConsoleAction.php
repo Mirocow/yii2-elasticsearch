@@ -12,16 +12,20 @@ class ConsoleAction extends Action
 {
     public function init()
     {
-        Event::on(Controller::className(), Controller::EVENT_BEFORE_ACTION, function ($event) {
-            if (!$this->acquireMutex()) {
-                $this->getController()->stderr("This process is already running.\n\n", Console::FG_RED);
-                exit;
-            }
-        });
+        if(Yii::$app->has('mutex')) {
+            Event::on(Controller::className(), Controller::EVENT_BEFORE_ACTION, function ($event)
+            {
+                if (!$this->acquireMutex()) {
+                    $this->getController()->stderr("This process is already running.\n\n", Console::FG_RED);
+                    exit;
+                }
+            });
 
-        Event::on(Controller::className(), Controller::EVENT_AFTER_ACTION, function ($event) {
-            $this->releaseMutex();
-        });
+            Event::on(Controller::className(), Controller::EVENT_AFTER_ACTION, function ($event)
+            {
+                $this->releaseMutex();
+            });
+        }
 
         parent::init();
     }
