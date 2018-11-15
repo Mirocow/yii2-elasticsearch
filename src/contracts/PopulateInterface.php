@@ -8,7 +8,7 @@ namespace mirocow\elasticsearch\contracts;
 interface PopulateInterface
 {
 
-    public function setResult(array &$result = []);
+    public function setResult(&$result = []);
 
     /**
      * Converts the raw query results into the format as specified by this query.

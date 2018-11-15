@@ -1,6 +1,7 @@
 <?php
 namespace mirocow\elasticsearch\components\indexes;
 
+use Elasticsearch\Helper\Iterators\SearchHitIterator;
 use mirocow\elasticsearch\contracts\PopulateInterface;
 use mirocow\elasticsearch\exceptions\SearchQueryException;
 use yii\db\ActiveQuery;
@@ -28,7 +29,7 @@ class ModelPopulate implements PopulateInterface
     /**
      * @inheritdoc
      */
-    public function setResult(array &$result = [])
+    public function setResult(&$result = [])
     {
         $this->result = $result;
 
@@ -238,18 +239,22 @@ class ModelPopulate implements PopulateInterface
      */
     public function search()
     {
-        $result = &$this->result;
+        $items = $this->result;
 
-        // Check result`s format
-        if(isset($result['hits']['hits'])) {
-            $items = $result['hits']['hits'];
-        } elseif(is_array($result)) {
-            $items = array_values($result);
+        if (!($items instanceof SearchHitIterator)) {
+            if (isset($items['hits']['hits'])) {
+                $items = $items['hits']['hits'];
+            } elseif (is_array($items)) {
+                $items = array_values($items);
+            }
         }
 
         if(!empty($items)) {
 
-            // Select fields from result
+            /**
+             * Select
+             */
+
             if ($this->select) {
                 $hits = [];
                 foreach ($items as $item) {
@@ -273,16 +278,19 @@ class ModelPopulate implements PopulateInterface
                     }
                 }
 
-                if(!$hits){
-                    throw new SearchQueryException(\Yii::t('app', 'Result data by select "{select}" not found', ['select' => $this->select ]));
-                }
-
                 $items = $hits;
                 unset($hits);
             }
 
-            // Load ActiveRecord`s models
-            if (!$this->asArray) {
+            /**
+             * ActiveRecord
+             */
+
+            if ($items && !$this->asArray) {
+                if(count($items) > 1000){
+                    throw new SearchResultException("Maximum number of models in a array is 1000");
+                }
+
                 $models = $this->createModels($items);
                 if (!empty($this->with)) {
                     $this->findWith($this->with, $models);
@@ -296,12 +304,7 @@ class ModelPopulate implements PopulateInterface
 
         }
 
-        if(!empty($items)){
-            $this->result = $items;
-            unset($items);
-        }
-
-        return $this->result;
+        return $this->result = $items;
     }
 
 }

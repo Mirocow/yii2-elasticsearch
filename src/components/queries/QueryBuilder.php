@@ -158,33 +158,29 @@ class QueryBuilder
      * Allows to add one or more sort on specific fields. Each sort can be reversed as well.
      * The sort is defined on a per field level, with special field name for _score to sort by score, and _doc to sort by index order.
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
-     * @param array $fieldsName
+     * @param array|null $fieldsName
      * @return $this
      */
-    public function sort(array $fieldsName = [])
+    public function sort($fieldsName = [])
     {
-        if($fieldsName) {
-            $this->sort = $fieldsName;
-        }
+        $this->sort = $fieldsName;
         return $this;
     }
 
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-aggregations.html
-     * @param Aggregation|AggregationMulti $aggregations
+     * @param Aggregation|AggregationMulti|null $aggregations
      * @return $this
      */
     public function aggregations($aggregations)
     {
-        if($aggregations) {
-            $this->aggs = $aggregations;
-        }
+        $this->aggs = $aggregations;
         return $this;
     }
 
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-highlighting.html
-     * @param array $highlight
+     * @param array|null $highlight
      * @return $this
      */
     public function highlight(array $highlight = [])
@@ -369,7 +365,7 @@ class QueryBuilder
          * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/mapping-id-field.html
          * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
          */
-        if (!$this->sort) {
+        if (!$this->sort && !is_null($this->sort)) {
             $this->body[ 'sort' ] = QueryHelper::sortBy([ '_id' => [ 'order' => 'asc' ] ]);
         }
 

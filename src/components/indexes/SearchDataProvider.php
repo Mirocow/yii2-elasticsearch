@@ -32,11 +32,6 @@ class SearchDataProvider extends BaseDataProvider
     /** @var array */
 
     /**
-     * @var array
-     */
-    private $response = [];
-
-    /**
      * @var array|null
      */
     private $aggregations = [];
@@ -51,6 +46,7 @@ class SearchDataProvider extends BaseDataProvider
      */
     protected function prepareModels()
     {
+
         if (!$this->query instanceof QueryBuilder) {
             throw new InvalidConfigException('The "query" property must be an instance of a class \mirocow\elasticsearch\components\queries\QueryBuilder or its subclasses.');
         }
@@ -59,33 +55,38 @@ class SearchDataProvider extends BaseDataProvider
             throw new InvalidConfigException('The "search" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\IndexInterface e.g. mirocow\elasticsearch\components\indexes\AbstractSearchIndex or its subclasses.');
         }
 
-        if (($sort = $this->getSort()) !== false) {
-            $this->query->sort($sort);
+        if (!$this->modelClass instanceof ModelPopulate) {
+            throw new InvalidConfigException('The "modelClass" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\PopulateInterface e.g. mirocow\elasticsearch\components\indexes\ModelPopulate or its subclasses.');
         }
+
+        $query = clone $this->query;
 
         if (($pagination = $this->getPagination()) !== false) {
             $pagination->totalCount = $this->getTotalCount();
             if ($pagination->totalCount === 0) {
                 return [];
             }
-            $this->query->limit($pagination->getLimit())
+            $query->limit($pagination->getLimit())
                 ->offset($pagination->getOffset());
         }
 
-        $this->response = $this->search
-            ->search($this->query)
+        if (($sort = $this->getSort()) !== false) {
+            $query->sort($sort);
+        }
+
+        $response = $this->search
+            ->search(
+                $query
+                    ->aggregations(null)
+            )
             ->result();
 
-        if(!$this->response){
+        if(!$response){
             return [];
         }
 
-        if (!$this->modelClass instanceof ModelPopulate) {
-            throw new InvalidConfigException('The "modelClass" property must be an instance of a class that implements the \mirocow\elasticsearch\contracts\PopulateInterface e.g. mirocow\elasticsearch\components\indexes\ModelPopulate or its subclasses.');
-        }
-
         return $this->modelClass
-            ->setResult($this->response)
+            ->setResult($response)
             ->all();
     }
 
@@ -104,29 +105,43 @@ class SearchDataProvider extends BaseDataProvider
     {
         $query = clone $this->query;
 
-        $query = $query
-            ->aggregations(null)
-            ->limit(1);
-
         $response = $this->search
-            ->search($query)
+            ->search(
+                $query
+                    ->aggregations(null)
+                    ->sort(null)
+                    ->withSource(false)
+                    ->limit(0)
+            )
             ->result();
 
-        if(empty($response['hits']['total'])){
+        if(!$response){
             return 0;
         }
 
         return $response['hits']['total'];
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function prepareAggregations()
     {
-        $this->prepare();
+        $query = clone $this->query;
 
-        if(!empty($this->response['aggregations'])) {
+        $response = $this->search
+            ->search(
+                $query
+                    ->withSource(false)
+                    ->sort(null)
+                    ->limit(0)
+            )
+            ->result();
+
+        if(!$response) {
             /** @var Aggregation|AggregationMulti $aggs */
             if($aggs = $this->query->aggs) {
-                $this->setAggregations($aggs->generateResults($this->response['aggregations']));
+                $this->setAggregations($aggs->generateResults($response['aggregations']));
             }
         }
     }
