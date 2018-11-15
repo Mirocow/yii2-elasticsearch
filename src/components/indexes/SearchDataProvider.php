@@ -138,7 +138,7 @@ class SearchDataProvider extends BaseDataProvider
             )
             ->result();
 
-        if(!$response) {
+        if($response) {
             /** @var Aggregation|AggregationMulti $aggs */
             if($aggs = $this->query->aggs) {
                 $this->setAggregations($aggs->generateResults($response['aggregations']));
