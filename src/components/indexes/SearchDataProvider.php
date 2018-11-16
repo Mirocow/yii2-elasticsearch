@@ -123,6 +123,7 @@ class SearchDataProvider extends BaseDataProvider
     }
 
     /**
+     * @return array
      * @throws \Exception
      */
     protected function prepareAggregations()
@@ -138,11 +139,13 @@ class SearchDataProvider extends BaseDataProvider
             )
             ->result();
 
-        if($response) {
-            /** @var Aggregation|AggregationMulti $aggs */
-            if($aggs = $this->query->aggs) {
-                $this->setAggregations($aggs->generateResults($response['aggregations']));
-            }
+        if(!$response){
+            return [];
+        }
+
+        /** @var Aggregation|AggregationMulti $aggs */
+        if($aggs = $this->query->aggs) {
+            $this->setAggregations($aggs->generateResults($response['aggregations']));
         }
     }
 
