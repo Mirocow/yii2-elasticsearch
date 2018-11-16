@@ -366,7 +366,7 @@ class QueryBuilder
          * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-sort.html
          */
         if (!$this->sort && !is_null($this->sort)) {
-            $this->body[ 'sort' ] = QueryHelper::sortBy([ '_id' => [ 'order' => 'asc' ] ]);
+            $this->body[ 'sort' ] = QueryHelper::sortBy(['_score' => SORT_DESC]);
         }
 
         return $this->body;
