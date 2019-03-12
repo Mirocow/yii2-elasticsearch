@@ -33,6 +33,21 @@ class QueryBuilder
     private $filter = [];
 
     /**
+     * @var array
+     */
+    private $post_filter = [];
+
+    /**
+     * @var array
+     */
+    private $script_fields = [];
+
+    /**
+     * @var array
+     */
+    private $docvalue_fields = [];
+
+    /**
      * @var Aggregation|AggregationMulti
      */
     public $aggs = [];
@@ -81,6 +96,9 @@ class QueryBuilder
      * @var array
      */
     private $result = [];
+
+    /** @var float */
+    private $min_score = 0.5;
 
     /**
      * @param string $key
@@ -224,8 +242,53 @@ class QueryBuilder
     }
 
     /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-post-filter.html
+     * @param array $filter
+     * @return $this
+     */
+    public function post_filter(array $filter = [])
+    {
+        $this->post_filter = $filter;
+        return $this;
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
+     * @param array $fields
+     * @return $this
+     */
+    public function script_fields(array $fields = [])
+    {
+        $this->script_fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
+     * @param array $fields
+     * @return $this
+     */
+    public function docvalue_fields(array $fields = [])
+    {
+        $this->docvalue_fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
+     * @param float $min
+     * @return $this
+     */
+    public function min_score($min = 0.5)
+    {
+        $this->min_score = $min;
+        return $this;
+    }
+
+    /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-source-filtering.html
      * @param array|string|bool $data
+     * @return $this
      */
     public function withSource($data = '*')
     {
@@ -337,13 +400,13 @@ class QueryBuilder
             'aggs',
             'highlight',
             'sort',
+            'post_filter',
             'source',
             'rescore',
             //'stored_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-stored-fields.html
-            //'script_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-script-fields.html
-            //'docvalue_fields', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-docvalue-fields.html
-            //'explain', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-explain.html
-            //'min_score', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-min-score.html
+            'script_fields',
+            'docvalue_fields',
+            'min_score',
             //'collapse', // TODO: @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-collapse.html
 
         ];
