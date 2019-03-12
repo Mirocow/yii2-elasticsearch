@@ -329,6 +329,38 @@ class QueryBuilder
     }
 
     /**
+     * @return string|array
+     */
+    protected function preparePostfilter()
+    {
+        return $this->post_filter;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareScriptfields()
+    {
+        return $this->script_fields;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareDocvaluefields()
+    {
+        return $this->docvalue_fields;
+    }
+
+    /**
+     * @return string|array
+     */
+    protected function prepareMinscore()
+    {
+        return $this->min_score;
+    }
+
+    /**
      * @return array|null
      */
     protected function prepareAggs()
@@ -412,7 +444,7 @@ class QueryBuilder
         ];
 
         foreach ($fields as $field) {
-            if($partQuery = call_user_func_array([$this, 'prepare' . ucwords($field)], [])) {
+            if($partQuery = call_user_func_array([$this, 'prepare' . ucwords(str_replace('_', '', $field))], [])) {
                 $this->body[$field] = $partQuery;
             }
         }
