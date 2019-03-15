@@ -19,12 +19,21 @@ class ScriptHelper extends QueryHelper
      */
     public static function sort($script = '', int $direction = SORT_ASC, $language = 'painless') :array
     {
+        if(is_string($script)){
+            $script = [
+                "source" => $script,
+            ];
+        }
+
+        if(empty($script['lang'])){
+            $script['lang'] = $language;
+        }
+
         return [
             '_script' => (object) [
-                'script' => $script,
                 'type' => 'number',
+                'script' => $script,
                 'order' => $direction === SORT_DESC ? 'desc' : 'asc',
-                'lang' => $language,
             ]
         ];
     }
