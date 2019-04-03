@@ -59,7 +59,7 @@ interface IndexInterface
      * @throws SearchIndexerException
      * @return void;
      */
-    public function create() ;
+    public function create();
 
     /**
      * Удаляет индекс
@@ -68,7 +68,7 @@ interface IndexInterface
      * @throws SearchIndexerException
      * @return void;
      */
-    public function destroy() ;
+    public function destroy();
 
     /**
      * Пересчитывает маппинг индекса
@@ -77,5 +77,14 @@ interface IndexInterface
      * @throws SearchIndexerException
      * @return void;
      */
-    public function upgrade() ;
+    public function upgrade();
+
+    /**
+     * Метод добавляет модель в индекс по ID
+     *
+     * @param int $documentId
+     *
+     * @return mixed
+     */
+    public function addDocumentById(int $documentId);
 }

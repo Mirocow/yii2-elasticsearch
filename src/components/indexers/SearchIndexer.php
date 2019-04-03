@@ -180,7 +180,7 @@ final class SearchIndexer implements IndexerInterface
                 } else {
                     throw new SearchIndexerException('Wrong format index');
                 }
-                $index->addById($documentId);
+                $index->addDocumentById($documentId);
                 $this->progressLogger->logProgress($totalSteps, $step);
                 $step++;
             }

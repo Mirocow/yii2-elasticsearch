@@ -1,11 +1,9 @@
 <?php
 namespace mirocow\elasticsearch;
 
-use mirocow\elasticsearch\controllers\index\IndexController;
-
 class Module extends \yii\base\Module
 {
-    const VERSION = '1.0.12';
+    const VERSION = '1.0.13';
 
     const MODULE_NAME = 'elasticsearch';
 

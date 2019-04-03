@@ -137,7 +137,7 @@ class ProductIndex extends AbstractSearchIndex
     }
 
     /** @inheritdoc */
-    public function addById(int $documentId)
+    public function addDocumentById(int $documentId)
     {
         try {
             $document = $this->products->get($documentId);
