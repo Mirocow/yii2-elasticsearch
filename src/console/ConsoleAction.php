@@ -69,7 +69,7 @@ class ConsoleAction extends Action
             $this->getController()->stderr(' ' . $message . PHP_EOL);
 
             $this->getController()->stderr('Trace:', Console::FG_GREY);
-            $this->getController()->stderr(' ' . $e->getTraceAsString() . PHP_EOL);
+            $this->getController()->stderr(PHP_EOL . $e->getTraceAsString() . PHP_EOL);
 
 
         }
