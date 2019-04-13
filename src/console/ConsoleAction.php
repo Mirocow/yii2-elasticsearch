@@ -11,8 +11,6 @@ use Yii;
 
 class ConsoleAction extends Action
 {
-    public $debug = false;
-
     public function init()
     {
         if(Yii::$app->has('mutex')) {
@@ -53,12 +51,12 @@ class ConsoleAction extends Action
     }
 
     /**
-     * @param string $message
+     * @param SearchIndexerException $e
      * @return void
      */
-    protected function stdDebug(SearchIndexerException $e, bool $isDebug = false)
+    protected function stdDebug(SearchIndexerException $e)
     {
-        $isDebug = $isDebug? $isDebug: \Yii::$app->getModule(Module::MODULE_NAME)->isDebug;
+        $isDebug = $this->controller->debug? $this->controller->debug: \Yii::$app->getModule(Module::MODULE_NAME)->isDebug;
 
         if($isDebug) {
             $message = $e->getMessage();
