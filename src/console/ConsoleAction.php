@@ -10,6 +10,8 @@ use Yii;
 
 class ConsoleAction extends Action
 {
+    public $debug = false;
+
     public function init()
     {
         if(Yii::$app->has('mutex')) {
@@ -53,9 +55,11 @@ class ConsoleAction extends Action
      * @param string $message
      * @return void
      */
-    protected function stdDebug(string $message)
+    protected function stdDebug(string $message, bool $isDebug = false)
     {
-        if(\Yii::$app->getModule(Module::MODULE_NAME)->isDebug) {
+        $isDebug = $isDebug? $isDebug: \Yii::$app->getModule(Module::MODULE_NAME)->isDebug;
+
+        if($isDebug) {
             $this->getController()->stderr('Debug:', Console::FG_YELLOW);
             $this->getController()->stderr(' ' . $message . PHP_EOL);
         }

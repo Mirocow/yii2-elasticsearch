@@ -17,6 +17,8 @@ class IndexController extends Controller
 
     public $skipNotExists = false;
 
+    public $debug = false;
+
     public function options($actionID)
     {
         // $actionId might be used in subclasses to provide options specific to action id
@@ -24,6 +26,7 @@ class IndexController extends Controller
             'interactive',
             'skipExists',
             'skipNotExists',
+            'debug',
         ];
     }
 
