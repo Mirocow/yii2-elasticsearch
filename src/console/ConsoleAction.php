@@ -1,6 +1,7 @@
 <?php
 namespace mirocow\elasticsearch\console;
 
+use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use mirocow\elasticsearch\Module;
 use yii\base\Action;
 use yii\base\Event;
@@ -55,13 +56,24 @@ class ConsoleAction extends Action
      * @param string $message
      * @return void
      */
-    protected function stdDebug(string $message, bool $isDebug = false)
+    protected function stdDebug(SearchIndexerException $e, bool $isDebug = false)
     {
         $isDebug = $isDebug? $isDebug: \Yii::$app->getModule(Module::MODULE_NAME)->isDebug;
 
         if($isDebug) {
-            $this->getController()->stderr('Debug:', Console::FG_YELLOW);
+            $message = $e->getMessage();
+            if($previous = $e->getPrevious()) {
+                $message .= PHP_EOL . $previous->getMessage();
+            }
+
+            $this->getController()->stderr('Error:', Console::FG_RED);
+            $this->getController()->stderr(' ' . $e->getFile() . ' (' . $e->getLine() . ')' . PHP_EOL);
             $this->getController()->stderr(' ' . $message . PHP_EOL);
+
+            $this->getController()->stderr('Trace:', Console::FG_GREY);
+            $this->getController()->stderr(' ' . $e->getTrace() . PHP_EOL);
+
+
         }
     }
 

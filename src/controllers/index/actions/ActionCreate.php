@@ -40,9 +40,7 @@ class ActionCreate extends ConsoleAction
             $this->indexer->createIndex($indexName, $this->skipExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
-            if($previous = $e->getPrevious()) {
-                $this->stdDebug($previous->getMessage());
-            }
+            $this->stdDebug($e);
         }
     }
 }

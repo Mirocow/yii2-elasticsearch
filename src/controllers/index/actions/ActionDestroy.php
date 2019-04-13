@@ -40,9 +40,7 @@ class ActionDestroy extends ConsoleAction
             $this->indexer->destroyIndex($indexName, $this->skipNotExists);
         } catch (SearchIndexerException $e) {
             $this->stdErr($e->getMessage());
-            if($previous = $e->getPrevious()) {
-                $this->stdDebug($previous->getMessage());
-            }
+            $this->stdDebug($e);
         }
     }
 }
