@@ -314,7 +314,7 @@ class QueryHelper
      */
     public static function query($query = '')
     {
-        return empty($query) ? ["match_all" => (object) []] : $query;
+        return empty($query) ? ["match_all" => (object) []] : (object) ['query' => $query];
     }
 
     /**
@@ -502,6 +502,7 @@ class QueryHelper
     }
 
     /**
+     * Adds script order condition to the query
      * @param string $script
      * @param int $direction
      * @param string $language
@@ -514,6 +515,8 @@ class QueryHelper
     }
 
     /**
+     * Adds script condition to the query
+     * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-examples.html
      * @param string $script
      * @param array $params
      * @param string $language

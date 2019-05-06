@@ -59,7 +59,7 @@ class ScriptHelper extends QueryHelper
         ];
 
         if($params){
-            $body['script']['params'] = (object) $params;
+            $body['script']->params = (object) $params;
         }
 
         return $body;

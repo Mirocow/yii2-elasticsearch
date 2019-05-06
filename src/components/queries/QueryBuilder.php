@@ -142,7 +142,8 @@ class QueryBuilder
     public function query($query = '')
     {
         if($query) {
-            $this->query = QueryHelper::query($query);
+            $query = QueryHelper::query($query);
+            $this->query = $query->query;
         }
         return $this;
     }
