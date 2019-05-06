@@ -5,7 +5,8 @@ namespace mirocow\elasticsearch\components\queries\helpers;
  * Class ScriptHelper
  * @package mirocow\elasticsearch\components\queries\helpers
  *
- * @see https://www.elastic.co/guide/en/elasticsearch/painless/6.4/painless-examples.html
+ * @see https://www.elastic.co/guide/en/elasticsearch/painless/5.6/painless-examples.html
+ * @see https://docs.oracle.com/javase/specs/jls/se8/html/index.html
  */
 class ScriptHelper extends QueryHelper
 {

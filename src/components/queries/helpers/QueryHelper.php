@@ -35,10 +35,10 @@ class QueryHelper
     /**
      * @example QueryHelper::filter(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html#_scoring_with_literal_bool_filter_literal
-     * @param $matchQueries
+     * @param array $matchQueries
      * @return array
      */
-    public static function filter($matchQueries) :array
+    public static function filter(array $matchQueries) :array
     {
         return self::bool($matchQueries);
     }
@@ -46,10 +46,10 @@ class QueryHelper
     /**
      * @example QueryHelper::must(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param $matchQueries
+     * @param array $matchQueries
      * @return array
      */
-    public static function must($matchQueries) :array
+    public static function must(array $matchQueries) :array
     {
         return self::bool([], $matchQueries);
     }
@@ -57,10 +57,10 @@ class QueryHelper
     /**
      * @example QueryHelper::should(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param $matchQueries
+     * @param array $matchQueries
      * @return array
      */
-    public static function should($matchQueries) :array
+    public static function should(array $matchQueries) :array
     {
         return self::bool([], [], $matchQueries);
     }
@@ -68,10 +68,10 @@ class QueryHelper
     /**
      * @example QueryHelper::mustNot(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param $matchQueries
+     * @param array $matchQueries
      * @return array
      */
-    public static function mustNot($matchQueries) :array
+    public static function mustNot(array $matchQueries) :array
     {
         return self::bool([], [], [], $matchQueries);
     }
