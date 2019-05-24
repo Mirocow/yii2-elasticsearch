@@ -141,7 +141,7 @@ class QueryHelper
         return (object) [
             'nested' => [
                 'path' => $path,
-                'query' => self::query($query)
+                'query' => $query
             ]
         ];
     }
