@@ -11,6 +11,7 @@ use mirocow\elasticsearch\contracts\IndexInterface;
 use mirocow\elasticsearch\contracts\QueryInterface;
 use mirocow\elasticsearch\exceptions\SearchClientException;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
+use mirocow\elasticsearch\exceptions\SearchQueryException;
 use Yii;
 use yii\helpers\ArrayHelper;
 
@@ -327,6 +328,8 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
 
         $profile = 'GET /' . $this->name() . '/' . $this->type() . '/_' . $method;
 
+        $requestBody = '';
+
         if (YII_DEBUG) {
             $requestBody = json_encode($query);
             Yii::info($requestBody, __METHOD__);
@@ -348,6 +351,8 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
                 default:
                     throw new SearchClientException("Unknown client method");
             }
+        } catch (\Elasticsearch\Common\Exceptions\BadRequest400Exception $e){
+            throw new SearchQueryException($requestBody, $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $e);
         } catch (\Exception $e) {
             throw $e;
         }
