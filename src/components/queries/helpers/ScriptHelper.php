@@ -51,16 +51,23 @@ class ScriptHelper extends QueryHelper
      */
     public static function query($script = '', $params = [], $language = 'painless') :array
     {
-        $body = [
-            'script' => (object) [
-                'source' => $script,
-                'lang' => $language,
-            ]
-        ];
-
-        if($params){
-            $body['script']->params = (object) $params;
+        if(is_string($script)){
+            $script = [
+                "source" => $script,
+            ];
         }
+
+        if(empty($script['lang'])){
+            $script['lang'] = $language;
+        }
+
+        if(empty($script['params']) && !empty($params)){
+            $script['params'] = (object) $params;
+        }
+
+        $body = [
+            'script' => (object) $script
+        ];
 
         return $body;
 

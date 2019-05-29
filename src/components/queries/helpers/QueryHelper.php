@@ -68,8 +68,8 @@ class QueryHelper
     /**
      * @example QueryHelper::mustNot(QueryHelper::match())
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-bool-query.html
-     * @param array $matchQueries
-     * @return array|mixed
+     * @param array|mixed $matchQueries
+     * @return array
      */
     public static function mustNot($matchQueries) :array
     {
@@ -141,7 +141,7 @@ class QueryHelper
         return (object) [
             'nested' => [
                 'path' => $path,
-                'query' => $query
+                'query' => self::query($query, false)
             ]
         ];
     }
@@ -310,11 +310,12 @@ class QueryHelper
     /**
      * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-match-all-query.html
      * @param string $query
+     * @param boolean $includeQuery
      * @return object
      */
-    public static function query($query = '')
+    public static function query($query = '', $includeQuery = true )
     {
-        return empty($query) ? ["match_all" => (object) []] : (object) ['query' => $query];
+        return empty($query) ? ["match_all" => (object) []] : ($includeQuery ? (object) ['query' => $query] : $query);
     }
 
     /**
