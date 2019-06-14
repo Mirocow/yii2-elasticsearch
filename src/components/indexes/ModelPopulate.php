@@ -4,6 +4,7 @@ namespace mirocow\elasticsearch\components\indexes;
 use Elasticsearch\Helper\Iterators\SearchHitIterator;
 use mirocow\elasticsearch\contracts\PopulateInterface;
 use mirocow\elasticsearch\exceptions\SearchQueryException;
+use mirocow\elasticsearch\exceptions\SearchResultException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
 use yii\db\ActiveRecord;
