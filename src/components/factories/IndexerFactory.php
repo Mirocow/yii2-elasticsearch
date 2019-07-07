@@ -15,6 +15,10 @@ class IndexerFactory
 {
     /**
      * @return IndexerInterface
+     * @throws SearchQueryException
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\di\NotInstantiableException
      */
     public static function getInstance() :IndexerInterface
     {
@@ -34,9 +38,14 @@ class IndexerFactory
     }
 
     /**
+     * @param $className
      * @param array $indexConfig
-     * @return IndexInterface
-     * @throws Exception
+     *
+     * @return object
+     * @throws SearchQueryException
+     * @throws \ReflectionException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\di\NotInstantiableException
      */
     public static function createIndex($className, $indexConfig = [])
     {
@@ -74,7 +83,7 @@ class IndexerFactory
     }
 
     /**
-     * @return null|\mirocow\elasticsearch\Module
+     * @return \yii\base\Module|null
      */
     public static function getModule()
     {
@@ -82,7 +91,7 @@ class IndexerFactory
     }
 
     /**
-     * @return array|string[]
+     * @return array|mixed
      */
     public static function getIndexes()
     {
