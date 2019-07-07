@@ -23,16 +23,11 @@ class IndexerFactory
 
         $searchIndexer = new SearchIndexer($logger);
         foreach (self::getIndexes() as $indexConfig) {
-            $className = $indexConfig['class'];
-
-            if(!$className){
-                throw new SearchQueryException("Search index class not found");
+            if(isset($indexConfig['class'])) {
+                /** @var IndexInterface $index */
+                $index = self::createIndex($indexConfig['class'], $indexConfig);
+                $searchIndexer->registerIndex($index);
             }
-            unset($indexConfig['class']);
-
-            /** @var IndexInterface $index */
-            $index = self::createIndex($className, $indexConfig);
-            $searchIndexer->registerIndex($index);
         }
 
         return $searchIndexer;
@@ -45,24 +40,29 @@ class IndexerFactory
      */
     public static function createIndex($className, $indexConfig = [])
     {
+        if(!class_exists($className)){
+            throw new SearchQueryException("Index class not found");
+        }
+
         $configs = self::getIndexes();
 
         if($indexConfig) {
             $configs = ArrayHelper::merge($configs, $indexConfig);
-            $indexConfig = [];
         }
 
         foreach ($configs as $config) {
-            if($className == $config['class']){
-                unset($config['class']);
-                $indexConfig = ArrayHelper::merge($indexConfig, $config);
-                break;
+            if(!class_exists($config['class'])){
+                throw new SearchQueryException("Index class not found");
             }
-            // Get config data from parrent class
-            if(get_parent_class($className) == $config['class']){
-                unset($config['class']);
+            if($className == $config['class']){
                 $indexConfig = ArrayHelper::merge($indexConfig, $config);
                 break;
+            } else {
+                $obj = new \ReflectionClass($className);
+                if ($obj->isSubclassOf($config['class'])) {
+                    $indexConfig = ArrayHelper::merge($indexConfig, $config);
+                    break;
+                }
             }
         }
 
