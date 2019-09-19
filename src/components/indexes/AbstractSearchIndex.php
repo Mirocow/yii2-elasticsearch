@@ -3,7 +3,8 @@ namespace mirocow\elasticsearch\components\indexes;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
-use Elasticsearch\Common\Exceptions\ElasticsearchException;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Elasticsearch\Helper\Iterators\SearchHitIterator;
 use Elasticsearch\Helper\Iterators\SearchResponseIterator;
 use mirocow\elasticsearch\components\queries\QueryBuilder;
@@ -13,6 +14,7 @@ use mirocow\elasticsearch\exceptions\SearchClientException;
 use mirocow\elasticsearch\exceptions\SearchIndexerException;
 use mirocow\elasticsearch\exceptions\SearchQueryException;
 use Yii;
+use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 
 abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
@@ -53,7 +55,10 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         return $this->index_type;
     }
 
-    /** @inheritdoc */
+    /**
+     * @return bool
+     * @throws SearchClientException
+     */
     public function exists() :bool
     {
         return $this->getClient()->indices()->exists([
@@ -61,7 +66,12 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         ]);
     }
 
-    /** @inheritdoc */
+    /**
+     * @param bool $skipExists
+     *
+     * @throws SearchClientException
+     * @throws SearchIndexerException
+     */
     public function create($skipExists = false)
     {
         if ($this->exists()) {
@@ -78,7 +88,13 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
         }
     }
 
-    /** @inheritdoc */
+    /**
+     * @param bool $skipNotExists
+     *
+     * @return array|void
+     * @throws SearchClientException
+     * @throws SearchIndexerException
+     */
     public function upgrade($skipNotExists = false)
     {
         if (!$this->exists()) {
@@ -97,13 +113,17 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
                 'type' => $this->type(),
                 'body' => $settings['body']['mappings'][$this->type()],
             ];
-            $this->getClient()->indices()->putMapping($mapping);
+            return $this->getClient()->indices()->putMapping($mapping);
         } catch (ElasticsearchException $e) {
             throw new SearchIndexerException('Error upgrading '.$this->name(). ' index', $e->getCode(), $e);
         }
     }
 
     /**
+     * @param bool $skipNotExists
+     *
+     * @return array|void
+     * @throws SearchClientException
      * @throws SearchIndexerException
      */
     public function destroy($skipNotExists = false)
@@ -114,11 +134,13 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             }
             return;
         }
-        $this->getClient()->indices()->delete(
-          [
-            'index' => $this->name()
-          ]
-        );
+        try {
+            return $this->getClient()->indices()->delete([
+                'index' => $this->name()
+            ]);
+        } catch (ElasticsearchException $e) {
+            throw new SearchIndexerException('Error deleting '.$this->name(). ' index', $e->getCode(), $e);
+        }
     }
 
     /**
@@ -151,7 +173,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             'body' => $document,
         ];
 
-        return $this->getClient()->index($query);
+        return $this->execute($query, 'index');
     }
 
     /**
@@ -184,7 +206,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             return $client->getSource($query);
         }
 
-        return $client->get($query);
+        return $this->execute($query, 'get');
     }
 
     /**
@@ -200,7 +222,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             'id' => $documentId,
         ];
 
-        return $this->getClient()->exists($query);
+        return $this->execute($query, 'exists');
     }
 
     /**
@@ -229,7 +251,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             'id' => $documentId
         ];
 
-        return $this->getClient()->delete($query);
+        return $this->execute($query, 'delete');
     }
 
     /**
@@ -263,7 +285,168 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             ],
         ];
 
-        return $this->getClient()->update($query);
+        return $this->execute($query, 'update');
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search.html
+     * @see https://ru.wikipedia.org/wiki/Okapi_BM25 for calculate _score
+     * @param $query
+     * @param array $params
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function search($query, $params = [])
+    {
+        return $this->execute($query, 'search', $params);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-scroll.html
+     * @param $query
+     * @param array $params
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function scroll($query, $params = ['scroll' => '5s', 'body' => ['size' => 50]])
+    {
+        return $this->execute($query, 'scroll', $params);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/docs-bulk.html
+     * @param $query
+     * @param array $params
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function bulk($query, $params = [])
+    {
+        return $this->execute($query, 'bulk', $params);
+    }
+
+    /**
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-explain.html
+     * @param $query
+     * @param array $params
+     * @return AbstractSearchIndex
+     * @throws \Exception
+     */
+    public function explain($query, $params = [])
+    {
+        return $this->execute($query, 'explain', $params);
+    }
+
+    /**
+     * @param array $query
+     *
+     * @return array
+     */
+    protected function prepareQuery($query)
+    {
+        return [
+            'index' => $this->name(),
+            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
+            'type' => $this->type(),
+            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
+            'body' => $query,
+        ];
+    }
+
+    /**
+     * Execute query DSL
+     * @param array $query
+     * @param string $method
+     * @param array $params
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function execute($query = [], $method = 'search', $params = [])
+    {
+        if ($query instanceof QueryBuilder) {
+            /** @var QueryBuilder $query */
+            $query = $query->generateQuery();
+        }
+
+        $method = strtolower($method);
+
+        if($method <> 'bulk'){
+            $query = $this->prepareQuery($query);
+        }
+
+        if ($params) {
+            $query = ArrayHelper::merge($query, $params);
+        }
+
+        $requestBody = '';
+        if (YII_DEBUG) {
+            $requestBody = json_encode($query);
+            Yii::info($requestBody, __METHOD__);
+        }
+
+        try {
+            switch ($method) {
+                case 'bulk':
+                    $this->result = $this->getClient()->bulk($query);
+                break;
+                case 'search':
+                case 'explain':
+                case 'scroll':
+                    if (YII_DEBUG) {
+                        $profile = 'GET /' . $this->name() . '/' . $this->type() . '/_' . $method;
+                        Yii::beginProfile($profile, __METHOD__);
+                    }
+                    if ($method == 'scroll') {
+                        $this->result = new SearchResponseIterator($this->getClient(), $query);
+                    } else {
+                        $this->result = $this->getClient()->{$method}($query);
+                    }
+                break;
+                case 'exists':
+                case 'get':
+                case 'index':
+                case 'delete':
+                case 'update':
+                    return $this->getClient()->{$method}($query);
+                break;
+                default:
+                    throw new SearchClientException("Unknown client method");
+            }
+        } catch (BadRequest400Exception | Missing404Exception $e){
+            throw new SearchQueryException($requestBody, $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $e);
+        } catch (\Exception $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+
+        if (YII_DEBUG) {
+            if (!($query instanceof SearchResponseIterator)) {
+                Yii::info($this->result, __METHOD__);
+            }
+            Yii::endProfile($profile, __METHOD__);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Client
+     * @throws SearchClientException
+     */
+    public function getClient()
+    {
+        if (!$this->client) {
+            $this->client = ClientBuilder::create()
+                ->setHosts($this->hosts)
+                ->build();
+            if(!$this->client->ping()){
+                throw new SearchClientException("Elasticsearch server doesn't answer");
+            }
+        }
+
+        return $this->client;
     }
 
     /**
@@ -292,145 +475,5 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
             }
             return $this->result;
         }
-    }
-
-    /**
-     * Execute query DSL
-     * @param array $query
-     * @param string $method
-     * @param array $params
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    public function execute($query = [], $method = 'search', $params = [])
-    {
-        if ($query instanceof QueryBuilder) {
-            /** @var QueryBuilder $query */
-            $query = $query->generateQuery();
-        }
-
-        $method = strtolower($method);
-
-        if ($method <> 'bulk') {
-            $query = [
-                'index' => $this->name(),
-                // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
-                'type' => $this->type(),
-                // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
-                'body' => $query,
-            ];
-        }
-
-        if ($params) {
-            $query = ArrayHelper::merge($query, $params);
-        }
-
-        $profile = 'GET /' . $this->name() . '/' . $this->type() . '/_' . $method;
-
-        $requestBody = '';
-
-        if (YII_DEBUG) {
-            $requestBody = json_encode($query);
-            Yii::info($requestBody, __METHOD__);
-            Yii::beginProfile($profile, __METHOD__);
-        }
-
-        try {
-            switch ($method) {
-                case 'scroll':
-                    $this->result = new SearchResponseIterator($this->getClient(), $query);
-                break;
-                case 'bulk':
-                    $this->result = $this->getClient()->bulk($query);
-                break;
-                case 'search':
-                case 'explain':
-                    $this->result = $this->getClient()->{$method}($query);
-                break;
-                default:
-                    throw new SearchClientException("Unknown client method");
-            }
-        } catch (\Elasticsearch\Common\Exceptions\BadRequest400Exception $e){
-            throw new SearchQueryException($requestBody, $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $e);
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        if (YII_DEBUG) {
-            if (!($query instanceof SearchResponseIterator)) {
-                Yii::info($this->result, __METHOD__);
-            }
-            Yii::endProfile($profile, __METHOD__);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search.html
-     * @see https://ru.wikipedia.org/wiki/Okapi_BM25 for calculate _score
-     * @param $query
-     * @param array $params
-     * @return AbstractSearchIndex
-     * @throws \Exception
-     */
-    public function search($query, $params = [])
-    {
-        return $this->execute($query, 'search', $params);
-    }
-
-    /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
-     * @param $query
-     * @param array $params
-     * @return AbstractSearchIndex
-     * @throws \Exception
-     */
-    public function scroll($query, $params = ['scroll' => '5s', 'body' => ['size' => 50]])
-    {
-        return $this->execute($query, 'scroll', $params);
-    }
-
-    /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/6.5/docs-bulk.html
-     * @param $query
-     * @param array $params
-     * @return AbstractSearchIndex
-     * @throws \Exception
-     */
-    public function bulk($query, $params = [])
-    {
-        return $this->execute($query, 'bulk', $params);
-    }
-
-    /**
-     * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-explain.html
-     * @param $query
-     * @param array $params
-     * @return AbstractSearchIndex
-     * @throws \Exception
-     */
-    public function explain($query, $params = [])
-    {
-        return $this->execute($query, 'explain', $params);
-    }
-
-    /**
-     * @return Client
-     * @throws SearchClientException
-     */
-    public function getClient()
-    {
-        if (!$this->client) {
-            $this->client = ClientBuilder::create()
-                ->setHosts($this->hosts)
-                ->build();
-            if(!$this->client->ping()){
-                throw new SearchClientException("Elasticsearch server doesn't answer");
-            }
-        }
-
-        return $this->client;
     }
 }
