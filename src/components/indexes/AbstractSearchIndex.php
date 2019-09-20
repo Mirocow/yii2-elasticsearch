@@ -167,8 +167,6 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     public function documentCreate(int $documentId, $document)
     {
         $query = [
-            'index' => $this->name(),
-            'type' => $this->type(),
             'id' => $documentId,
             'body' => $document,
         ];
@@ -195,15 +193,13 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
      */
     public function documentGetById(int $documentId, $onlySource = true){
         $query = [
-            'index' => $this->name(),
-            'type' => $this->type(),
-            'id' => $documentId
+            'id' => $documentId,
         ];
 
         $client = $this->getClient();
 
         if($onlySource){
-            return $client->getSource($query);
+            return $this->execute($query, 'getSource');
         }
 
         return $this->execute($query, 'get');
@@ -217,8 +213,6 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     public function documentExists(int $documentId)
     {
         $query = [
-            'index' => $this->name(),
-            'type' => $this->type(),
             'id' => $documentId,
         ];
 
@@ -246,9 +240,7 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     public function documentRemoveById(int $documentId)
     {
         $query = [
-            'index' => $this->name(),
-            'type' => $this->type(),
-            'id' => $documentId
+            'id' => $documentId,
         ];
 
         return $this->execute($query, 'delete');
@@ -277,11 +269,9 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
     public function documentUpdateById(int $documentId, $document, $type = 'doc')
     {
         $query = [
-            'index' => $this->name(),
-            'type' => $this->type(),
             'id' => $documentId,
             'body' => [
-                $type => $document
+                $type => $document,
             ],
         ];
 
@@ -339,18 +329,39 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
 
     /**
      * @param array $query
+     * @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
      *
      * @return array
      */
     protected function prepareQuery($query)
     {
-        return [
-            'index' => $this->name(),
-            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-search-type.html
-            'type' => $this->type(),
-            // @see https://www.elastic.co/guide/en/elasticsearch/reference/5.6/search-request-body.html
-            'body' => $query,
-        ];
+        // Query as QueryBuilder
+        if ($query instanceof QueryBuilder) {
+            $query = [
+                'body' => $query->generateQuery(),
+            ];
+        }
+
+        // Query as stdClass created by QueryHelper
+        elseif($query instanceof \stdClass){
+            $query = [
+                'body' => $query,
+            ];
+        }
+
+        // Query as array
+        if(is_array($query)) {
+            $query = ArrayHelper::merge($query, [
+                'index' => $this->name(),
+                'type' => $this->type(),
+            ]);
+        }
+
+        if(!$query){
+            throw new SearchClientException('Query not found');
+        }
+
+        return $query;
     }
 
     /**
@@ -364,68 +375,52 @@ abstract class AbstractSearchIndex implements IndexInterface, QueryInterface
      */
     public function execute($query = [], $method = 'search', $params = [])
     {
-        if ($query instanceof QueryBuilder) {
-            /** @var QueryBuilder $query */
-            $query = $query->generateQuery();
-        }
-
-        $method = strtolower($method);
-
-        if($method <> 'bulk'){
-            $query = $this->prepareQuery($query);
-        }
-
-        if ($params) {
-            $query = ArrayHelper::merge($query, $params);
-        }
-
-        $requestBody = '';
-        if (YII_DEBUG) {
-            $requestBody = json_encode($query);
-            Yii::info($requestBody, __METHOD__);
-        }
-
         try {
+            $query = $this->prepareQuery($query);
+            if ($params) {
+                $query = ArrayHelper::merge($query, $params);
+            }
+
+            $requestBody = '';
+            if (YII_DEBUG) {
+                $profile = '/' . $this->name() . '/' . $this->type() . '/_' . $method;
+                Yii::beginProfile($profile, __METHOD__);
+                $requestBody = json_encode($query);
+                Yii::info($requestBody, __METHOD__);
+            }
+
+            $client = $this->getClient();
             switch ($method) {
                 case 'bulk':
-                    $this->result = $this->getClient()->bulk($query);
+                    $this->result = $client->bulk($query);
                 break;
                 case 'search':
                 case 'explain':
                 case 'scroll':
-                    if (YII_DEBUG) {
-                        $profile = 'GET /' . $this->name() . '/' . $this->type() . '/_' . $method;
-                        Yii::beginProfile($profile, __METHOD__);
-                    }
                     if ($method == 'scroll') {
-                        $this->result = new SearchResponseIterator($this->getClient(), $query);
+                        $this->result = new SearchResponseIterator($client, $query);
                     } else {
-                        $this->result = $this->getClient()->{$method}($query);
+                        $this->result = $client->{$method}($query);
                     }
-                break;
-                case 'exists':
-                case 'get':
-                case 'index':
-                case 'delete':
-                case 'update':
-                    return $this->getClient()->{$method}($query);
                 break;
                 default:
-                    throw new SearchClientException("Unknown client method");
+                    if(method_exists($client, $method)) {
+                        return $client->{$method}($query);
+                    } else {
+                        throw new SearchClientException("Unknown client method");
+                    }
+            }
+
+            if (YII_DEBUG) {
+                if (!($query instanceof SearchResponseIterator)) {
+                    Yii::info($this->result, __METHOD__);
+                }
+                Yii::endProfile($profile, __METHOD__);
             }
         } catch (BadRequest400Exception | Missing404Exception $e){
             throw new SearchQueryException($requestBody, $e->getMessage(), $e->getCode(), $e->getFile(), $e->getLine(), $e);
-        } catch (\Exception $e) {
+        } catch (SearchClientException $e){
             throw $e;
-        } catch (\Throwable $e) {
-            throw $e;
-        }
-
-        if (YII_DEBUG) {
-            if (!($query instanceof SearchResponseIterator)) {
-                Yii::info($this->result, __METHOD__);
-            }
-            Yii::endProfile($profile, __METHOD__);
         }
 
         return $this;
