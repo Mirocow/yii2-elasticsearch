@@ -19,6 +19,10 @@ Based on https://github.com/elastic/elasticsearch
 
 ## Install 
 
+```bash
+$ composer require --prefer-dist mirocow/yii2-elasticsearch
+```
+
 ### Elasticsearch 5.6.x
 
 ```bash
