@@ -1,9 +1,9 @@
 <?php
+
 namespace mirocow\elasticsearch\components\indexes;
 
 use Elasticsearch\Helper\Iterators\SearchHitIterator;
 use mirocow\elasticsearch\contracts\PopulateInterface;
-use mirocow\elasticsearch\exceptions\SearchQueryException;
 use mirocow\elasticsearch\exceptions\SearchResultException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveQueryTrait;
@@ -16,6 +16,10 @@ class ModelPopulate implements PopulateInterface
 
     use ActiveQueryTrait;
 
+    /**
+     * @see https://www.yiiframework.com/doc/api/2.0/yii-db-querytrait#indexBy()-detail
+     * @var string|callable
+     */
     public $indexBy = 'id';
 
     private $select = '';
@@ -51,23 +55,27 @@ class ModelPopulate implements PopulateInterface
         $i = 0;
         foreach ($rows as $key => $row) {
             if ($this->indexBy !== null) {
-                if (is_string($this->indexBy)) {
-                    if (isset($row['fields'][$this->indexBy])) {
-                        $key = reset($row['fields'][$this->indexBy]);
-                    } elseif (isset($row['_source'][$this->indexBy])){
-                        $key = $row['_source'][$this->indexBy];
-                    } elseif (isset($row[$this->indexBy])){
-                        $key = $row[$this->indexBy];
+                if ($this->indexBy instanceof \Closure) {
+                    $key = call_user_func($this->indexBy, $row);
+                } else {
+                    if ((is_string($this->indexBy) || is_numeric($this->indexBy)) && is_array($row)) {
+                        if (isset($row['fields'][$this->indexBy])) {
+                            $key = reset($row['fields'][$this->indexBy]);
+                        } elseif (isset($row['_source'][$this->indexBy])) {
+                            $key = $row['_source'][$this->indexBy];
+                        } elseif (isset($row[$this->indexBy])) {
+                            $key = $row[$this->indexBy];
+                        }
                     } else {
                         $key = $i++;
                     }
-                } else {
-                    $key = call_user_func($this->indexBy, $row);
                 }
             }
 
-            if(!empty($row['_source'])){
-                $row = $row['_source'];
+            if (is_array($row)) {
+                if (!empty($row['_source'])) {
+                    $row = $row['_source'];
+                }
             }
 
             $models[$key] = $row;
@@ -77,7 +85,9 @@ class ModelPopulate implements PopulateInterface
 
     /**
      * Converts found rows into model instances
+     *
      * @param array $rows
+     *
      * @return array|ActiveRecord[]
      * @since 2.0.4
      */
@@ -93,9 +103,9 @@ class ModelPopulate implements PopulateInterface
                     $key = '_id';
                     if (isset($row['fields'][$this->indexBy])) {
                         $key = reset($row['fields'][$this->indexBy]);
-                    } elseif (isset($row['_source'][$this->indexBy])){
+                    } elseif (isset($row['_source'][$this->indexBy])) {
                         $key = $row['_source'][$this->indexBy];
-                    } elseif (isset($row[$key])){
+                    } elseif (isset($row[$key])) {
                         $key = $row[$key];
                     }
                 } elseif ($this->indexBy instanceof \Closure) {
@@ -105,14 +115,14 @@ class ModelPopulate implements PopulateInterface
                 if (empty($key)) {
                     $models[] = $row;
                 } else {
-                    $models[ $key ] = $row;
+                    $models[$key] = $row;
                 }
             }
         } else {
             /* @var $class ActiveRecord */
             $class = $this->modelClass;
 
-            if($this->indexBy === null){
+            if ($this->indexBy === null) {
                 $this->indexBy = '_id';
             }
 
@@ -123,12 +133,12 @@ class ModelPopulate implements PopulateInterface
                 $modelClass = get_class($model);
 
                 // Reserved elasticsearch sorce field
-                if(isset($row['_source'])) {
+                if (isset($row['_source'])) {
                     $row = $row['_source'];
                 }
 
                 // Reseved Elasticsearch ID
-                if(is_numeric($row)){
+                if (is_numeric($row)) {
                     $row = ['_id' => $row];
                 }
 
@@ -136,24 +146,24 @@ class ModelPopulate implements PopulateInterface
                 $modelClass::populateRecord($model, $row);
 
                 // Model is corrupted and we haven`t all model`s attributes
-                if(count($model->attributes) <> count($row)) {
+                if (count($model->attributes) <> count($row)) {
 
                     // If exists special elasticserch field
-                    if(!empty($row['_id'])){
+                    if (!empty($row['_id'])) {
                         $id = $row['_id'];
-                    } elseif(!empty($row[$this->indexBy])) {
+                    } elseif (!empty($row[$this->indexBy])) {
                         $id = $row[$this->indexBy];
                     }
 
                     // Skip if model id not found
-                    if(empty($id)){
+                    if (empty($id)) {
                         continue;
                     }
 
                     $model = $modelClass::findOne(['id' => $id]);
 
                     // Skip if model not found
-                    if(!$model){
+                    if (!$model) {
                         continue;
                     }
 
@@ -169,7 +179,7 @@ class ModelPopulate implements PopulateInterface
                 if (empty($key)) {
                     $models[] = $model;
                 } else {
-                    $models[ $key ] = $model;
+                    $models[$key] = $model;
                 }
             }
         }
@@ -204,7 +214,7 @@ class ModelPopulate implements PopulateInterface
     {
         $this->search();
 
-        if(!$this->result){
+        if (!$this->result) {
             return [];
         }
 
@@ -218,7 +228,7 @@ class ModelPopulate implements PopulateInterface
     {
         $return = $this->all();
 
-        if(!$return){
+        if (!$return) {
             return [];
         }
 
@@ -250,7 +260,7 @@ class ModelPopulate implements PopulateInterface
             }
         }
 
-        if(!empty($items)) {
+        if (!empty($items)) {
 
             /**
              * Select
@@ -260,19 +270,19 @@ class ModelPopulate implements PopulateInterface
                 $hits = [];
                 foreach ($items as $item) {
                     // Include *, name.* as wildcard
-                    if(substr($this->select, -2) == '.*') {
-                        $key = substr($this->select, 0, strlen($this->select)-2);
+                    if (substr($this->select, -2) == '.*') {
+                        $key = substr($this->select, 0, strlen($this->select) - 2);
                         $values = ArrayHelper::getValue($item, $key);
-                        if($values) {
+                        if ($values) {
                             $hits = array_merge($hits, $values);
                         }
                     } else {
-                        if($this->select == '*'){
+                        if ($this->select == '*') {
                             $value = $item;
                         } else {
                             $value = ArrayHelper::getValue($item, $this->select);
                         }
-                         if($value) {
+                        if ($value) {
                             $hits[] = $value;
                             unset($value);
                         }
@@ -288,7 +298,7 @@ class ModelPopulate implements PopulateInterface
              */
 
             if ($items && !$this->asArray) {
-                if(count($items) > 1000){
+                if (count($items) > 1000) {
                     throw new SearchResultException("Maximum number of models in a array is 1000");
                 }
 
