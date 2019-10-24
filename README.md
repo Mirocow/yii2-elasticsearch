@@ -23,7 +23,7 @@ Based on https://github.com/elastic/elasticsearch
 $ composer require --prefer-dist mirocow/yii2-elasticsearch
 ```
 
-### Elasticsearch 5.6.x
+### Elasticsearch 7.x
 
 ```bash
 $ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
