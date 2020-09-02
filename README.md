@@ -1,4 +1,4 @@
-# Elasticsearch client based on official Elasticsearch PHP library
+# Elasticsearch client for Yii2 framework based on official Elasticsearch PHP library
 
 ![www.elasticsearch.com](https://github.com/Mirocow/yii2-elasticsearch/blob/master/documents/elasticsearch.png)
 
