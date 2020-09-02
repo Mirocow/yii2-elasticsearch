@@ -369,7 +369,7 @@ class QueryHelper
      * @param array $searchQuery
      * @return object
      */
-    public static function functionScore($query = [], $searchQuery = []) :\stdClass
+    public static function functionScore($queries = [], $searchQuery = []) :\stdClass
     {
         $query = [
             'query' => $queries,
